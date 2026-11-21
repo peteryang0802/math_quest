@@ -9,6 +9,7 @@ const LEVELS = [level1, level2, level3];
 const BEST_KEY = 'math-quest-best';
 const PROG_KEY = 'math-quest-progress';
 const FLOWER_KEY = 'math-quest-flower';
+const LAST_KEY = 'math-quest-last';
 const KEYS = ['A', 'B', 'C', 'D'];
 
 const app = document.getElementById('app');
@@ -56,6 +57,14 @@ function persist(){
     states: run.states,
     updatedAt: Date.now()
   });
+}
+
+// 讲解块（答对 / 订正后看）
+function explainHTML(q){
+  return `<div class="explain-box">
+    <span class="explain-label">📝 为什么</span>
+    <p class="explain-text">${esc(q.explain)}</p>
+  </div>`;
 }
 
 // ---------- 开始 / 恢复 ----------
@@ -125,6 +134,10 @@ function renderQuestion(){
       <div class="q-stage">
         <div class="stem">${esc(q.stem)}</div>
       </div>
+      <div class="hint-zone" id="hint-zone">
+        <button class="btn-hint" id="hint-btn">💡 卡住了？点我看提示</button>
+        <div class="hint-box hidden" id="hint-box">${esc(q.hint)}</div>
+      </div>
       <div class="options" id="options">
         ${q.options.map((o,k) => `
           <button class="opt" data-k="${k}">
@@ -143,6 +156,12 @@ function renderQuestion(){
     persist();
     location.hash = '#/home';
   });
+  document.getElementById('hint-btn').addEventListener('click', () => {
+    const box = document.getElementById('hint-box');
+    const nowHidden = box.classList.toggle('hidden');
+    document.getElementById('hint-btn').textContent =
+      nowHidden ? '💡 卡住了？点我看提示' : '💡 提示（先自己想，别急着选）';
+  });
   app.querySelectorAll('.opt').forEach(b =>
     b.addEventListener('click', () => choose(+b.dataset.k)));
   document.getElementById('next-btn').addEventListener('click', goNext);
@@ -158,9 +177,11 @@ function choose(k){
     st.status = st.wrongPicks.length ? 'corrected' : 'first';
     st.finalPick = k;
     lockOptions(k, q.answer);
+    document.getElementById('hint-zone').classList.add('hidden');
     const fb = document.getElementById('feedback');
     fb.className = 'feedback ok';
-    fb.textContent = st.status === 'first' ? '答对了，真棒！' : '订正后答对了';
+    const head = st.status === 'first' ? '答对了，真棒！' : '订正后答对了，看看为什么';
+    fb.innerHTML = `<div class="fb-head">${head}</div>${explainHTML(q)}`;
     playCorrect();
     persist();
     document.getElementById('q-actions').classList.remove('hidden');
@@ -170,7 +191,7 @@ function choose(k){
     if (b){ b.classList.add('wrong'); b.disabled = true; }
     const fb = document.getElementById('feedback');
     fb.className = 'feedback no';
-    fb.textContent = '再想想看';
+    fb.textContent = '再想想看，也可以点上面的提示';
     playWrong();
     persist();
   }
@@ -193,9 +214,11 @@ function restoreAnswered(){
     if (b){ b.classList.add('wrong'); b.disabled = true; }
   });
   lockOptions(st.finalPick != null ? st.finalPick : q.answer, q.answer);
+  document.getElementById('hint-zone').classList.add('hidden');
   const fb = document.getElementById('feedback');
   fb.className = 'feedback ok';
-  fb.textContent = st.status === 'first' ? '答对了，真棒！' : '订正后答对了';
+  const head = st.status === 'first' ? '答对了，真棒！' : '订正后答对了，看看为什么';
+  fb.innerHTML = `<div class="fb-head">${head}</div>${explainHTML(q)}`;
   document.getElementById('q-actions').classList.remove('hidden');
 }
 
@@ -228,6 +251,18 @@ function finishRun(timeUp){
     best[run.level.id] = { score, first:counts.first, total };
     lsSet(BEST_KEY, best);
   }
+
+  // 记下本次逐题结果，供结算页做错题回顾
+  lsSet(LAST_KEY, {
+    levelId: run.level.id,
+    timeUp: timeUp,
+    states: run.states.map(s => ({
+      status:s.status,
+      wrongPicks:s.wrongPicks || [],
+      finalPick:s.finalPick
+    }))
+  });
+
   lsRemove(PROG_KEY);
 
   // 三关最佳累计满 90，且还没拿过花，就给小红花
@@ -242,12 +277,50 @@ function finishRun(timeUp){
   location.hash = '#/result/' + id;
 }
 
+// 错题回顾：把没一次答对的题列出来，讲清楚
+function reviewHTML(level, last){
+  const items = last.states.map((s, i) => {
+    if (s.status === 'first') return null;
+    const q = level.questions[i];
+    let yourText, yourCls;
+    if (s.finalPick != null){
+      yourText = KEYS[s.finalPick] + '. ' + q.options[s.finalPick].t;
+      yourCls = 'rv-corrected';
+    } else if (s.wrongPicks && s.wrongPicks.length){
+      const k = s.wrongPicks[s.wrongPicks.length - 1];
+      yourText = KEYS[k] + '. ' + q.options[k].t;
+      yourCls = 'rv-wrong';
+    } else {
+      yourText = '这题没来得及做';
+      yourCls = 'rv-blank';
+    }
+    const correctText = KEYS[q.answer] + '. ' + q.options[q.answer].t;
+    return `<div class="review-item">
+      <div class="rv-no">第 ${i + 1} 题 · ${esc(q.point)}</div>
+      <div class="rv-stem">${esc(q.stem)}</div>
+      <div class="rv-row ${yourCls}"><span>你的选择</span><b>${esc(yourText)}</b></div>
+      <div class="rv-row rv-answer"><span>正确答案</span><b>${esc(correctText)}</b></div>
+      <div class="rv-explain">${esc(q.explain)}</div>
+    </div>`;
+  }).filter(Boolean);
+
+  if (!items.length) return '';
+  return `<div class="review">
+    <h3 class="review-title">📖 错题回顾（${items.length} 题，看懂再走）</h3>
+    ${items.join('')}
+  </div>`;
+}
+
 function renderResult(i){
   if (i < 0){ location.hash = '#/home'; return; }
   const level = LEVELS[i];
   const best = loadBest()[level.id];
   if (!best){ location.hash = '#/home'; return; }
   const rate = Math.round(best.score / 30 * 100);
+  const last = lsGet(LAST_KEY);
+  const review = (last && last.levelId === level.id) ? reviewHTML(level, last) : '';
+  const timeUpNote = (last && last.levelId === level.id && last.timeUp)
+    ? '<p class="timeup-note">时间到啦，没做完的题我们一起看看</p>' : '';
   app.innerHTML = `
     <div class="result">
       <div class="result-card" style="--c:${level.color}">
@@ -259,7 +332,9 @@ function renderResult(i){
         </div>
         <h2>${best.score === 30 ? '这一关满分，太厉害啦' : '继续加油，争取满分'}</h2>
         <p class="result-note">一次答对 ${best.first} / ${best.total} 题，每题 3 分</p>
+        ${timeUpNote}
       </div>
+      ${review}
       <div class="result-actions">
         <button class="btn-primary" style="--c:${level.color}" id="retry">再闯一次</button>
         <button class="btn-ghost" id="home">返回首页</button>

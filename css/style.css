@@ -192,6 +192,66 @@ button{ font-family:inherit; cursor:pointer; border:none; background:none; color
   100%{ transform:translateY(115vh) rotate(720deg); opacity:.9; }
 }
 
+/* ---------- 提示（暖黄，给思路不给答案） ---------- */
+.hint-zone{ margin-bottom:14px; }
+.btn-hint{
+  width:100%; text-align:left;
+  background:#fffbeb; border:1.5px dashed #f59e0b;
+  color:#b45309; font-weight:700; font-size:14px;
+  padding:11px 14px; border-radius:12px;
+  transition:background .12s ease;
+}
+.btn-hint:active{ background:#fef3c7; }
+.hint-box{
+  margin-top:8px; background:#fef3c7;
+  border-left:4px solid #f59e0b; border-radius:10px;
+  padding:12px 14px; color:#78350f; font-size:14.5px; font-weight:600;
+}
+
+/* ---------- 讲解（天蓝，答对后看为什么） ---------- */
+.fb-head{ font-weight:800; font-size:15.5px; }
+.feedback.ok .fb-head{ color:var(--ok); }
+.explain-box{
+  margin-top:10px; text-align:left;
+  background:#f0f9ff; border:1.5px solid #bae6fd; border-left:4px solid #0ea5e9;
+  border-radius:12px; padding:12px 14px;
+}
+.explain-label{ display:block; font-size:13px; font-weight:800; color:#0369a1; margin-bottom:4px; }
+.explain-text{ margin:0; color:#0c4a6e; font-size:14.5px; font-weight:600; }
+
+/* ---------- 超时提示 ---------- */
+.timeup-note{ color:#ea580c; font-size:13.5px; font-weight:700; margin:8px 0 0; }
+
+/* ---------- 错题回顾（结算页） ---------- */
+.review{ margin-top:20px; text-align:left; }
+.review-title{ font-size:17px; font-weight:800; color:#1e293b; margin:0 0 12px; }
+.review-item{
+  background:#fff; border-radius:16px; padding:16px;
+  box-shadow:0 2px 10px rgba(15,23,42,.06);
+  border:1.5px solid var(--line); margin-bottom:12px;
+}
+.rv-no{ font-size:12.5px; font-weight:800; color:#6366f1; margin-bottom:6px; }
+.rv-stem{ font-size:15px; font-weight:700; margin:0 0 10px; line-height:1.55; }
+.rv-row{
+  display:flex; justify-content:space-between; align-items:center; gap:10px;
+  border-radius:10px; padding:9px 12px; margin-bottom:7px; font-size:13.5px;
+}
+.rv-row span{ font-weight:700; color:var(--muted); flex:0 0 auto; }
+.rv-row b{ font-weight:700; text-align:right; }
+.rv-corrected{ background:#fff7ed; }
+.rv-corrected span,.rv-corrected b{ color:#c2410c; }
+.rv-wrong{ background:#fef2f2; }
+.rv-wrong span,.rv-wrong b{ color:#dc2626; }
+.rv-blank{ background:#f8fafc; }
+.rv-blank span,.rv-blank b{ color:#64748b; }
+.rv-answer{ background:#f0fdf4; }
+.rv-answer span,.rv-answer b{ color:#15803d; }
+.rv-explain{
+  background:#f0f9ff; border-left:4px solid #0ea5e9;
+  border-radius:8px; padding:10px 12px; margin-top:8px;
+  color:#0c4a6e; font-size:13.5px; font-weight:600;
+}
+
 /* ---------- 手机适配 ---------- */
 @media (max-width:480px){
   #app{ padding:14px 12px 32px; }
@@ -199,4 +259,7 @@ button{ font-family:inherit; cursor:pointer; border:none; background:none; color
   .stem{ font-size:17px; }
   .timer{ min-width:52px; font-size:16px; padding:6px 8px; }
   .level-badge{ width:48px; height:48px; flex-basis:48px; font-size:23px; }
+  .hint-box,.explain-text{ font-size:14px; }
+  .rv-stem{ font-size:14.5px; }
+  .rv-row{ flex-direction:column; align-items:flex-start; gap:2px; }
 }

@@ -13,6 +13,8 @@ export const level2 = {
       options: [{ t: '2x+3=7' }, { t: 'x²+1=5' }, { t: 'x+y=4' }, { t: '3+2=5' }],
       answer: 0,
       point: '一元一次方程的识别',
+      hint: '只含一个未知数，而且未知数的次数是 1。',
+      explain: '2x+3=7 只有一个未知数 x、次数是 1，是一元一次方程。x²+1=5 次数是 2，x+y=4 有两个未知数。',
       source: '参照北京区七上期末真题题型改编'
     },
     {
@@ -21,6 +23,8 @@ export const level2 = {
       options: [{ t: 'a+5=b−5' }, { t: 'a+5=b+5' }, { t: '5a=b' }, { t: 'a−5=b+5' }],
       answer: 1,
       point: '等式的性质',
+      hint: '等式两边要做同样的变化，加就都加同一个数。',
+      explain: 'a=b，两边同时加 5，得到 a+5=b+5，等式仍然成立。',
       source: '参照北京朝阳区七上期末真题题型改编'
     },
     {
@@ -29,6 +33,8 @@ export const level2 = {
       options: [{ t: 'x=3' }, { t: 'x=5' }, { t: 'x=8' }, { t: 'x=11' }],
       answer: 1,
       point: '解一元一次方程',
+      hint: '两边同时减去 3。',
+      explain: 'x+3=8，两边减 3：x=8−3=5。',
       source: '参照北京区七上期末真题题型改编'
     },
     {
@@ -37,6 +43,8 @@ export const level2 = {
       options: [{ t: 'x=2' }, { t: 'x=5' }, { t: 'x=8' }, { t: 'x=20' }],
       answer: 1,
       point: '系数化为1',
+      hint: '两边同时除以 2。',
+      explain: '2x=10，两边除以 2：x=10÷2=5。',
       source: '参照北京区七上期末真题题型改编'
     },
     {
@@ -45,6 +53,8 @@ export const level2 = {
       options: [{ t: 'x=1' }, { t: 'x=2' }, { t: 'x=3' }, { t: 'x=5' }],
       answer: 2,
       point: '移项解方程',
+      hint: '先把 −2 移到右边变成加 2，再除以 3。',
+      explain: '3x−2=7，移项得 3x=7+2=9，再除以 3：x=3。',
       source: '参照北京区七上期末真题题型改编'
     },
     {
@@ -53,6 +63,8 @@ export const level2 = {
       options: [{ t: '1' }, { t: '2' }, { t: '3' }, { t: '4' }],
       answer: 1,
       point: '方程的解',
+      hint: '把 x=2 代进方程，就变成只含 a 的方程。',
+      explain: '代入 x=2：2a+1=5，2a=4，所以 a=2。',
       source: '参照北京区七上期末真题题型改编'
     },
     {
@@ -61,6 +73,8 @@ export const level2 = {
       options: [{ t: 'x=2' }, { t: 'x=3' }, { t: 'x=4' }, { t: 'x=7' }],
       answer: 1,
       point: '去括号解方程',
+      hint: '可以先两边除以 2，再求 x。',
+      explain: '两边除以 2：x+1=4，再减 1：x=3。',
       source: '参照北京区七上期末真题题型改编'
     },
     {
@@ -69,6 +83,8 @@ export const level2 = {
       options: [{ t: 'x=2' }, { t: 'x=3' }, { t: 'x=6' }, { t: 'x=9' }],
       answer: 1,
       point: '合并同类项解方程',
+      hint: '先把左边的同类项合并。',
+      explain: '5x−2x=3x，所以 3x=9，x=3。',
       source: '参照北京区七上期末真题题型改编'
     },
     {
@@ -77,6 +93,8 @@ export const level2 = {
       options: [{ t: 'x=1' }, { t: 'x=2' }, { t: 'x=4' }, { t: 'x=8' }],
       answer: 2,
       point: '去分母解方程',
+      hint: '先把 +1 移到右边，再想 x 除以 2 等于几。',
+      explain: 'x÷2+1=3，移项得 x÷2=2，所以 x=2×2=4。',
       source: '参照北京区七上期末真题题型改编'
     },
     {
@@ -85,6 +103,8 @@ export const level2 = {
       options: [{ t: 'x=2' }, { t: 'x=3' }, { t: 'x=4' }, { t: 'x=6' }],
       answer: 2,
       point: '去括号与移项',
+      hint: '先去括号，再把含 x 的移到一边、数字移到另一边。',
+      explain: '去括号：3x−6=x+2，移项得 2x=8，所以 x=4。',
       source: '参照北京区七上期末真题题型改编'
     }
   ]

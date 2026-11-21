@@ -13,6 +13,8 @@ export const level1 = {
       options: [{ t: '3a+2' }, { t: '3(a+2)' }, { t: '3a−2' }, { t: 'a+2' }],
       answer: 0,
       point: '列代数式',
+      hint: '先算 a 的 3 倍，是 3a；再多 2，就加上 2。',
+      explain: 'a 的 3 倍写成 3a，再多 2 就是 3a+2。3(a+2) 是把 a 和 2 一起乘 3，意思不一样。',
       source: '参照北京区七上期末真题题型改编'
     },
     {
@@ -21,6 +23,8 @@ export const level1 = {
       options: [{ t: 'x+y÷2' }, { t: '(x+y)÷2' }, { t: 'x÷2+y' }, { t: '2(x+y)' }],
       answer: 1,
       point: '列代数式',
+      hint: '先求 x 和 y 的和，再取一半。要先算的部分记得加括号。',
+      explain: 'x 与 y 的和是 x+y，取一半要整体除以 2，所以是 (x+y)÷2。x+y÷2 只把 y 除了 2，不对。',
       source: '参照北京区七上期末真题题型改编'
     },
     {
@@ -29,6 +33,8 @@ export const level1 = {
       options: [{ t: '5' }, { t: '6' }, { t: '7' }, { t: '8' }],
       answer: 2,
       point: '代数式求值',
+      hint: '把 a=2 代进去，3a 就是 3×2。',
+      explain: '代入 a=2：3×2+1=6+1=7。',
       source: '参照北京区七上期末真题题型改编'
     },
     {
@@ -37,6 +43,8 @@ export const level1 = {
       options: [{ t: '2' }, { t: '5' }, { t: '9' }, { t: '1' }],
       answer: 1,
       point: '代数式求值',
+      hint: 'x² 是 x 乘 x，先算平方，再减 4。',
+      explain: 'x=3 时，x²=3×3=9，再减 4：9−4=5。',
       source: '参照北京区七上期末真题题型改编'
     },
     {
@@ -45,6 +53,8 @@ export const level1 = {
       options: [{ t: '5' }, { t: '−5' }, { t: '2' }, { t: '−5x' }],
       answer: 1,
       point: '单项式的系数',
+      hint: '系数是字母前面的数字，负号也是系数的一部分。',
+      explain: '−5x² 里数字部分是 −5，所以系数是 −5，别漏掉负号。',
       source: '参照北京区七上期末真题题型改编'
     },
     {
@@ -53,6 +63,8 @@ export const level1 = {
       options: [{ t: '1' }, { t: '2' }, { t: '3' }, { t: '4' }],
       answer: 1,
       point: '单项式的次数',
+      hint: '次数是所有字母的指数加起来，a 和 b 各算几次？',
+      explain: '3ab 里 a 出现 1 次、b 出现 1 次，次数是 1+1=2。',
       source: '参照北京区七上期末真题题型改编'
     },
     {
@@ -61,6 +73,8 @@ export const level1 = {
       options: [{ t: '2x 和 2y' }, { t: '3x² 和 3x' }, { t: '2x 和 5x' }, { t: 'ab 和 abc' }],
       answer: 2,
       point: '同类项',
+      hint: '同类项要字母相同、相同字母的指数也一样，跟前面的数字没关系。',
+      explain: '2x 和 5x 字母都是 x、指数都是 1，是同类项。2x 和 2y 字母不同，不是。',
       source: '参照北京区七上期末真题题型改编'
     },
     {
@@ -69,6 +83,8 @@ export const level1 = {
       options: [{ t: '5x' }, { t: '6x' }, { t: '5' }, { t: 'x' }],
       answer: 0,
       point: '合并同类项',
+      hint: '把前面的数字加起来，字母 x 保持不变。',
+      explain: '3+2=5，字母 x 保留，所以 3x+2x=5x。',
       source: '参照北京区七上期末真题题型改编'
     },
     {
@@ -77,6 +93,8 @@ export const level1 = {
       options: [{ t: '5a' }, { t: '2a+3' }, { t: '6a+3' }, { t: '2a' }],
       answer: 1,
       point: '整式加减',
+      hint: '只有带 a 的项能合并，数字 3 没有同类，要原样留着。',
+      explain: '4a−2a=2a，数字 3 不能跟 a 合并，结果是 2a+3。',
       source: '参照北京区七上期末真题题型改编'
     },
     {
@@ -85,6 +103,8 @@ export const level1 = {
       options: [{ t: '3' }, { t: '4' }, { t: '5' }, { t: '6' }],
       answer: 1,
       point: '代数式求值',
+      hint: '分别代入，2a 是 2×a，别把 b 漏了。',
+      explain: '代入：2×1+2=2+2=4。',
       source: '参照北京区七上期末真题题型改编'
     }
   ]
