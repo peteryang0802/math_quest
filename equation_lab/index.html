@@ -58,6 +58,9 @@ body{font-family:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-s
 .level-head h2{margin:0;font-size:17px}
 .level-head .sub{font-size:12.5px;opacity:.85;font-weight:400}
 .prob-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;padding:14px}
+.toy-btn{display:block;width:calc(100% - 28px);margin:2px 14px 0;background:#fff;border:2px dashed currentColor;border-radius:12px;
+  padding:11px;font-family:inherit;font-size:13.5px;font-weight:700;cursor:pointer;transition:.15s}
+.toy-btn:active{transform:scale(.98);background:#F8FAFC}
 .prob-tile{border:1px solid var(--line);border-radius:14px;padding:12px;cursor:pointer;background:#fff;transition:.15s;text-align:left}
 .prob-tile:active{transform:scale(.97)}
 .prob-tile .idx{font-size:11px;font-weight:700;color:var(--sub)}
@@ -241,6 +244,7 @@ function applyHash(){
   if(view==='home'){show('home');}
   else if(view==='map'){curZone=parts[1]||'basic';renderMap();show('map');}
   else if(view==='problem'){const pid=parts[1];if(P[pid])openProblem(pid);}
+  else if(view==='toy'){const lid=parts[1];if(TOY[lid])openToy(lid);}
 }
 window.addEventListener('hashchange',applyHash);
 
@@ -254,13 +258,17 @@ function renderMap(){
     const h=document.createElement('div');h.className='level-head';
     h.style.background=`linear-gradient(120deg,${l.color},${l.color}cc)`;
     h.innerHTML=`<div class="num">${l.id[1]}</div><div><h2>${l.name}</h2><div class="sub">${l.sub}</div></div>`;
+    const toy=document.createElement('button');
+    toy.className='toy-btn';toy.style.color=l.color;
+    toy.innerHTML='🎈 先玩一玩（不带题，自由拖）';
+    toy.onclick=()=>navigate('/toy/'+l.id);
     const g=document.createElement('div');g.className='prob-grid';
     l.problems.forEach((pid,i)=>{
       const t=document.createElement('div');t.className='prob-tile'+(done.has(pid)?' done':'');
       t.innerHTML=`<div class="idx">${l.id}-${i+1}</div><div class="nm">${P[pid].name}</div>`;
       t.onclick=()=>navigate('/problem/'+pid);g.appendChild(t);
     });
-    b.append(h,g);$('#map-wrap').appendChild(b);
+    b.append(h,toy,g);$('#map-wrap').appendChild(b);
   });
 }
 $('#map-back').onclick=()=>navigate('/home');
@@ -299,13 +307,31 @@ const P={
  milk:{name:'牛奶加工方案',mode:'play',stem:'9 吨 4 天做完，三种加工，两个方案哪个赚得多？'}
 };
 
-/* ============ 打开题目 ============ */
-function openProblem(pid){
+/* ============ 裸玩具（不带题，先自由玩） ============ */
+const TOY={
+ L1:{title:'先玩一玩 · 总数不变',talk:'没有题目，随便拖。<b>看着两堆东西什么时候变得一样多</b>，这就是这一关的相等。'},
+ L2:{title:'先玩一玩 · 凑成总量',talk:'没有题目，随便拖。<b>看几段加起来什么时候凑满整条</b>，这就是这一关的相等。'},
+ L3:{title:'先玩一玩 · 追上就相等',talk:'没有题目，随便拖。<b>看上面的马什么时候追上下面的马</b>，并排那一刻就是相等。'},
+ L4:{title:'先玩一玩 · 按比例配对',talk:'没有题目，随便拖。<b>看两边套数什么时候相等</b>，这时两种零件都不浪费。'},
+ L5:{title:'先玩一玩 · 两本账比一比',talk:'没有题目，随便拖。<b>两个方案的柱子比一比</b>，看谁更高。'}
+};
+const TOY_PID={L1:'tree',L2:'tunnel',L3:'chase',L4:'match',L5:'milk'};
+let toyMode=false;
+
+/* ============ 打开题目 / 玩具 ============ */
+function openToy(lid){
+  const l=LEVELS.find(x=>x.id===lid);curZone=l.zone;
+  openProblem(TOY_PID[lid],{toy:true,title:TOY[lid].title,talk:TOY[lid].talk});
+}
+function openProblem(pid,opt){
   curProb=pid;const p=P[pid];
-  $('#prob-title').textContent=p.name;
-  $('#board-name').textContent=p.name;
+  toyMode=!!(opt&&opt.toy);
+  const title=opt&&opt.title?opt.title:p.name;
+  $('#prob-title').textContent=title;
+  $('#board-name').textContent=title;
   $('#board-hint').textContent='';
-  if(p.mode==='slider') initSlider(p); else initPlay(p);
+  if(p.mode==='slider')initSlider(p);else initPlay(p);
+  if(opt&&opt.talk)$('#talk').innerHTML=opt.talk;
   show('problem');
 }
 
@@ -330,7 +356,7 @@ function initSlider(p){
     const bal=Math.abs(lv-rv)<1e-9*Math.max(1,Math.abs(lv),Math.abs(rv));
     $('#eqc').classList.toggle('on',bal);
     renderEq(p.lx(v),p.rx(v),lv,rv,bal);
-    if(bal){done.add(curProb);$('#board-hint').textContent='✓ 相等啦';}else $('#board-hint').textContent='';
+    if(bal){if(!toyMode)done.add(curProb);$('#board-hint').textContent='✓ 相等啦';}else $('#board-hint').textContent='';
   }
   rng.oninput=refresh;refresh();
 }
@@ -438,12 +464,12 @@ function initPlay(p){
       $('#flag').textContent=ok?'✓ 比出来了：方案二更划算，多赚 1500 元':'';
       $('#flag').classList.toggle('show',ok);
       $('#board-hint').textContent=ok?'✓ 方案二多赚 1500 元':'';
-      if(ok)done.add(curProb);
+      if(ok&&!toyMode)done.add(curProb);
     }else{
       const o=cfg.vals(v);
       renderEq(o.lx,o.rx,o.l,o.r,o.bal);
       $('#board-hint').textContent=o.bal?'✓ 相等啦':'';
-      if(o.bal)done.add(curProb);
+      if(o.bal&&!toyMode)done.add(curProb);
     }
   }
   rng.oninput=()=>{clearInterval(playTimer);draw();};
