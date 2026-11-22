@@ -378,6 +378,15 @@ function renderHome(){
           </button>`;
         }).join('')}
       </div>
+      <div class="section-label">动手玩 · 把相等关系看明白</div>
+      <a class="lab-entry" href="equation_lab/index.html">
+        <span class="lab-ico">⚖️</span>
+        <span class="lab-meta">
+          <span class="lab-name">相等关系实验室</span>
+          <span class="lab-desc">11 道应用题，拖一拖滑块，看两边怎么变得一样多</span>
+        </span>
+        <span class="lab-arrow">›</span>
+      </a>
     </div>`;
   app.querySelectorAll('.level-card').forEach(c =>
     c.addEventListener('click', () => location.hash = '#/play/' + LEVELS[+c.dataset.i].id));
