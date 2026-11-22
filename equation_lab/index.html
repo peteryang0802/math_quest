@@ -8,32 +8,34 @@
 :root{
   --bg:#F4F7FB;--card:#fff;--ink:#1E293B;--sub:#64748B;--line:#E2E8F0;
   --blue:#3B82F6;--teal:#14B8A6;--purple:#8B5CF6;--pink:#EC4899;--orange:#F59E0B;--green:#10B981;
-  --green-bg:#A7F3D0;--shadow:0 4px 18px rgba(15,23,42,.07);--radius:18px;
+  --red:#EF4444;--shadow:0 4px 18px rgba(15,23,42,.07);--radius:18px;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{margin:0;font-family:"PingFang SC","Noto Sans SC","Microsoft YaHei",system-ui,sans-serif;
   background:var(--bg);color:var(--ink);line-height:1.5}
-#app{max-width:1080px;margin:0 auto;min-height:100vh}
-.view{display:none;animation:fade .45s ease}
+#app{min-height:100vh}
+.view{display:none;animation:fade .4s ease}
 .view.active{display:block}
 @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 button{font-family:inherit}
-/* 按钮 */
+:focus-visible{outline:3px solid #6366F1;outline-offset:2px;border-radius:8px}
+/* 通用按钮 */
 .btn{border:none;cursor:pointer;font-size:14px;font-weight:700;border-radius:12px;padding:11px 18px;
-  background:#fff;color:var(--ink);border:2px solid var(--line);transition:.15s}
+  background:#fff;color:var(--ink);border:2px solid var(--line);transition:.15s;min-height:44px}
 .btn:active{transform:scale(.96)}
+.btn:disabled{opacity:.55;cursor:default;transform:none}
 .btn.primary{background:var(--blue);color:#fff;border-color:var(--blue)}
 .btn.go{background:var(--green);color:#fff;border-color:var(--green);font-size:15px;padding:13px 22px}
+.btn.ghost{background:#F1F5F9}
 /* 首页 */
-.hero{padding:40px 20px 30px;text-align:center}
+.hero{padding:38px 20px 30px;text-align:center;max-width:1080px;margin:0 auto}
 .hero-badge{display:inline-block;background:#EFF6FF;color:var(--blue);font-weight:800;font-size:13px;
   padding:6px 14px;border-radius:999px}
 .hero h1{font-size:clamp(26px,5vw,38px);margin:16px 0 10px}
 .lead{color:var(--sub);font-size:15px;max-width:620px;margin:0 auto}
 .zone-row{display:flex;gap:18px;margin-top:30px;text-align:left}
 .zone-card{flex:1;background:var(--card);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);
-  cursor:pointer;border:2px solid transparent;transition:.18s}
-.zone-card:active{transform:scale(.98)}
+  cursor:pointer;border:2px solid transparent;width:100%;text-align:left}
 .zone-card.basic{border-top:5px solid var(--blue)}
 .zone-card.adv{border-top:5px solid var(--purple)}
 .zone-tag{font-size:12px;font-weight:800;color:var(--sub)}
@@ -44,26 +46,43 @@ button{font-family:inherit}
 .topbar{display:flex;align-items:center;gap:14px;padding:16px 18px;position:sticky;top:0;background:var(--bg);z-index:5}
 .crumb{font-weight:800;font-size:17px}
 /* 地图 */
-.map-wrap{padding:6px 18px 40px}
+.map-wrap{padding:6px 18px 40px;max-width:1080px;margin:0 auto}
 .theme-block{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:18px;overflow:hidden}
 .theme-head{display:flex;align-items:center;gap:12px;padding:16px 20px;color:#fff}
 .theme-head .dot{width:38px;height:38px;border-radius:11px;background:rgba(255,255,255,.22);display:grid;place-items:center;font-weight:800}
 .theme-head h2{margin:0;font-size:17px}
 .theme-head .tsub{font-size:12.5px;opacity:.9;font-weight:400}
-.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;padding:16px 20px 20px}
-.tile{border:2px solid var(--line);border-radius:14px;padding:13px;cursor:pointer;background:#fff;transition:.15s;text-align:left}
-.tile:active{transform:scale(.97)}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;padding:16px 20px 20px}
+.tile{border:2px solid var(--line);border-radius:14px;padding:13px;cursor:pointer;background:#fff;
+  transition:.15s;text-align:left;min-height:44px}
 .tile .no{font-size:11px;font-weight:800;color:var(--sub)}
-.tile .nm{font-size:14px;font-weight:800;margin-top:4px}
-.tile.done{border-color:var(--green)}
-.tile.done .nm::after{content:" ✓";color:var(--green)}
-/* 题卡 */
-.card-wrap{padding:0 18px 46px}
+.tile .nm{font-size:14px;font-weight:800;margin-top:4px;display:flex;align-items:center;justify-content:space-between;gap:6px}
+.tile .st{font-size:11px;font-weight:800;display:flex;gap:5px}
+.tile .st i{font-style:normal;color:var(--sub)}
+.tile .st i.on{color:var(--green)}
+/* 题卡左右布局 */
+.card-shell{display:grid;grid-template-columns:1fr;max-width:1080px;margin:0 auto}
+.card-rail{display:none}
+.card-main{min-width:0}
+.card-scroll{padding:0 18px 46px}
 .stem-box{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 20px;margin-bottom:16px;
   border-left:6px solid var(--blue);font-size:15px}
 .stem-box .qlabel{font-size:12px;font-weight:800;color:var(--blue);display:block;margin-bottom:6px}
-.stage-box{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px 20px;margin-bottom:16px;min-height:260px}
+.stage-box{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px 20px;margin-bottom:16px;min-height:240px}
 .stage-inner{display:flex;flex-direction:column;align-items:center;gap:18px}
+/* 模式切换 */
+.mode-tabs{display:flex;gap:8px;margin-left:auto}
+.mode-tab{border:2px solid var(--line);background:#fff;border-radius:999px;padding:8px 14px;font-size:12.5px;
+  font-weight:800;color:var(--sub);cursor:pointer;min-height:38px}
+.mode-tab.active{background:#EEF2FF;color:#4338CA;border-color:#C7D2FE}
+/* 想一想 */
+.think{width:100%;border:2px dashed #C7D2FE;border-radius:14px;padding:14px 16px;background:#F8FAFF}
+.think-q{font-size:14px;font-weight:800;color:#3730A3;margin-bottom:10px}
+.think-row{display:flex;gap:10px;flex-wrap:wrap}
+.think-opt{background:#fff;border:2px solid #C7D2FE;color:#3730A3;padding:9px 14px;min-height:42px;font-size:13.5px}
+.think-fb{font-size:13px;font-weight:700;margin-top:10px;min-height:20px}
+.think-bad{color:var(--red)}
+.think-ok{color:#059669}
 /* 揭示 */
 .reveal{border-radius:var(--radius);padding:16px 20px;margin-bottom:14px;color:#fff;display:none}
 .reveal.show{display:block;animation:fade .4s}
@@ -76,18 +95,16 @@ button{font-family:inherit}
 .act-row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;width:100%}
 .svgicon{display:inline-block;vertical-align:middle}
 .people-row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
-.person-chip{display:flex;flex-direction:column;align-items:center;gap:3px;width:46px}
-.person-chip svg{width:32px;height:32px}
-.person-chip .tag{font-size:10px;font-weight:800;color:var(--sub)}
 /* 水平条 */
 .hbar{display:flex;width:100%;height:52px;border-radius:12px;overflow:hidden;background:#EEF2F7;border:1px solid var(--line)}
 .hseg{display:grid;place-items:center;font-size:12px;font-weight:800;color:#fff;white-space:nowrap;overflow:hidden;transition:width .5s cubic-bezier(.22,1,.36,1)}
-.haxis{display:flex;justify-content:space-between;width:100%;font-size:11px;color:var(--sub);margin-top:-8px}
-/* 水槽 60 格 */
+.hseg.ghost-seg{background:#FCD34D;color:#92400E;border:2px dashed #F59E0B}
+/* 水槽 */
 .tank{display:grid;grid-template-columns:repeat(20,1fr);gap:3px;width:100%;max-width:660px}
 .cell{aspect-ratio:1;border-radius:3px;background:#EDF1F6;border:1px solid #E2E8F0;transition:.3s}
 .cell.a{background:var(--blue);border-color:var(--blue)}
 .cell.b{background:var(--orange);border-color:var(--orange)}
+.cell.c{background:var(--teal);border-color:var(--teal)}
 .legend{display:flex;gap:18px;font-size:12.5px;color:var(--sub);font-weight:700;flex-wrap:wrap;justify-content:center}
 .dotleg{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:5px;vertical-align:-1px}
 /* 跑道 */
@@ -95,8 +112,7 @@ button{font-family:inherit}
   border-radius:12px;border:1px solid var(--line);overflow:hidden}
 .runner{position:absolute;transition:left .5s linear;display:flex;flex-direction:column;align-items:center;gap:2px}
 .runner .rname{font-size:11px;font-weight:800}
-.horse{font-size:30px;line-height:1}
-/* 两本账/利润柱 */
+/* 两本账 */
 .cols{display:flex;gap:34px;align-items:flex-end;justify-content:center;height:230px;width:100%}
 .pf{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:8px}
 .pf .pcol{width:84px;border-radius:12px 12px 6px 6px;display:flex;justify-content:center;align-items:flex-start;
@@ -108,33 +124,50 @@ button{font-family:inherit}
 .day b{display:block;font-size:12px;color:var(--ink);margin-bottom:4px}
 .day .task{background:#fff;border-radius:7px;padding:5px 7px;margin-top:5px;font-weight:700;font-size:11px}
 /* 费用表 */
-.fee-table{width:100%;border-collapse:collapse;font-size:13px}
+.fee-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}
 .fee-table th,.fee-table td{border:1px solid var(--line);padding:8px 10px;text-align:center}
 .fee-table th{background:#F8FAFC;font-weight:800}
 .fee-table .best{background:#ECFDF5;font-weight:800;color:#059669}
 /* 输入框 */
 .eq-input{width:100%;border:2px solid var(--line);border-radius:12px;padding:13px;font-size:17px;font-weight:700;
-  font-family:inherit;outline:none}
+  font-family:inherit;outline:none;min-height:48px}
 .eq-input:focus{border-color:var(--blue)}
 .input-fb{font-size:13px;font-weight:700;min-height:20px}
+.answer-row{display:flex;flex-direction:column;gap:10px;width:100%;align-items:stretch}
 /* 滑块 */
 input[type=range]{width:100%;-webkit-appearance:none;height:10px;border-radius:999px;background:var(--line);outline:none}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:30px;height:30px;border-radius:50%;
   background:var(--blue);box-shadow:0 2px 8px rgba(59,130,246,.5);cursor:pointer;border:3px solid #fff}
 .range-wrap{width:100%;display:flex;flex-direction:column;gap:8px}
-.range-cap{display:flex;justify-content:space-between;font-size:13px;font-weight:800;color:var(--sub)}
+.range-cap{display:flex;justify-content:space-between;font-size:13px;font-weight:800;color:var(--sub);gap:8px}
 .range-val{font-size:22px;font-weight:800;color:var(--blue);text-align:center}
-/* 托盘配对 */
+/* 托盘 */
 .tray{display:flex;flex-direction:column;gap:8px;width:100%;max-width:520px}
-.tray-row{display:flex;gap:8px;align-items:center;justify-content:center;min-height:40px}
-.slot{width:38px;height:38px;border-radius:9px;border:2px dashed #CBD5E1;display:grid;place-items:center;font-size:15px}
+.tray-row{display:flex;gap:8px;align-items:center;justify-content:center;min-height:40px;flex-wrap:wrap}
+.slot{width:38px;height:38px;border-radius:9px;border:2px dashed #CBD5E1;display:grid;place-items:center;
+  font-size:15px;background:#fff}
 .slot.fill{border-style:solid}
 .slot.ja{background:#DBEAFE;border-color:var(--blue)}
 .slot.jb{background:#FFEDD5;border-color:var(--orange)}
 .scrap{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;min-height:24px;font-size:12px;font-weight:800;color:var(--sub)}
+/* 左侧只读进度 */
+.rail-head{font-size:12px;font-weight:800;color:var(--sub);padding:0 8px 10px}
+.rail-list{display:flex;flex-direction:column;gap:6px}
+.rail-item{display:flex;align-items:center;gap:8px;width:100%;text-align:left;background:#fff;border:2px solid var(--line);
+  border-radius:11px;padding:9px 11px;cursor:pointer;min-height:42px}
+.rail-item.current{border-color:#6366F1;background:#EEF2FF}
+.rail-item .rn{flex:1;font-size:13px;font-weight:700}
+.rail-item .rs{font-size:11px;font-weight:800;display:flex;gap:4px}
+.rail-item .rs i{font-style:normal;color:#CBD5E1}
+.rail-item .rs i.on{color:var(--green)}
+.rail-back{width:100%;margin-top:10px}
+@media (min-width:980px){
+  .card-shell{grid-template-columns:264px 1fr;gap:24px;padding:0 24px}
+  .card-rail{display:block;position:sticky;top:0;align-self:start;max-height:100vh;overflow:auto;padding:20px 0}
+  .card-topbar{padding:16px 0}
+}
 @media (max-width:720px){
   .zone-row{flex-direction:column}
-  .hero{padding:28px 16px}
   .cols{gap:18px}
   .pf .pcol{width:64px}
   .stage-box{padding:18px 14px}
@@ -143,40 +176,55 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:30px;heigh
 </head>
 <body>
 <div id="app">
+  <!-- ===== 视图：首页 ===== -->
   <section class="view" id="view-home">
     <div class="hero">
       <span class="hero-badge">相等关系实验室</span>
-      <h1>动手做，看懂"相等"</h1>
-      <p class="lead">每道题只做一个动作。先看见题目里的东西怎么变得相等，再把这一刻记成方程。不用背，照着做就懂。</p>
+      <h1>动手做，看懂“相等”</h1>
+      <p class="lead">每道题只做一个动作。先看见题目里的东西怎么变得相等，再把这一刻记成方程。做完还有一道换题，自己试。</p>
       <div class="zone-row">
-        <div class="zone-card basic" data-zone="basic">
+        <button class="zone-card basic" data-zone="basic" type="button">
           <div class="zone-tag">第一块 · 先玩这里</div>
           <h3>基础室</h3>
-          <p>同一批东西怎么分、几段怎么凑成整体。把"相等"的直觉先建立起来。</p>
+          <p>同一批东西怎么分、几段怎么凑成整体。</p>
           <span class="pill">2 个主题</span><span class="pill">8 张题卡</span>
-        </div>
-        <div class="zone-card adv" data-zone="adv">
+        </button>
+        <button class="zone-card adv" data-zone="adv" type="button">
           <div class="zone-tag">第二块 · 基础玩透再来</div>
           <h3>进阶室</h3>
-          <p>追上去、配成套、两本账比一比。更绕，也更有意思。</p>
+          <p>追上去、配成套、两本账比一比。</p>
           <span class="pill">3 个主题</span><span class="pill">3 张题卡</span>
-        </div>
+        </button>
       </div>
     </div>
   </section>
 
+  <!-- ===== 视图：地图 ===== -->
   <section class="view" id="view-map">
-    <div class="topbar"><button class="btn" id="map-back">← 返回</button><div class="crumb" id="map-title"></div></div>
+    <div class="topbar"><button class="btn" id="map-back" type="button">← 返回首页</button><div class="crumb" id="map-title"></div></div>
     <div class="map-wrap" id="map-wrap"></div>
   </section>
 
+  <!-- ===== 视图：题卡 ===== -->
   <section class="view" id="view-card">
-    <div class="topbar"><button class="btn" id="card-back">← 地图</button><div class="crumb" id="card-title"></div></div>
-    <div class="card-wrap">
-      <div class="stem-box"><span class="qlabel">完整题目</span><span id="stem-text"></span></div>
-      <div class="stage-box"><div class="stage-inner" id="stage"></div></div>
-      <div class="reveal r1" id="rev1"><span class="rtag">第一步 · 我看见关系了</span><div class="formula" id="rev1-f"></div><div class="note" id="rev1-n"></div></div>
-      <div class="reveal r2" id="rev2"><span class="rtag">第二步 · 把答案代回图里核对</span><div class="formula" id="rev2-f"></span></div><div class="note" id="rev2-n"></div></div>
+    <div class="card-shell">
+      <aside class="card-rail" id="card-rail"></aside>
+      <main class="card-main">
+        <div class="topbar card-topbar">
+          <button class="btn" id="card-back" type="button">← 地图</button>
+          <div class="crumb" id="card-title"></div>
+          <div class="mode-tabs" role="group" aria-label="学习模式">
+            <button class="mode-tab active" id="mode-main" type="button">演示学习</button>
+            <button class="mode-tab" id="mode-drill" type="button">独立换题</button>
+          </div>
+        </div>
+        <div class="card-scroll">
+          <div class="stem-box"><span class="qlabel">完整题目</span><span id="stem-text"></span></div>
+          <div class="stage-box"><div class="stage-inner" id="stage"></div></div>
+          <div class="reveal r1" id="rev1"><span class="rtag">第一步 · 我看见关系了</span><div class="formula" id="rev1-f"></div><div class="note" id="rev1-n"></div></div>
+          <div class="reveal r2" id="rev2"><span class="rtag">第二步 · 把答案代回图里核对</span><div class="formula" id="rev2-f"></div><div class="note" id="rev2-n"></div></div>
+        </div>
+      </main>
     </div>
   </section>
 </div>
@@ -192,16 +240,17 @@ function el(tag,cls,html){const e=document.createElement(tag);if(cls)e.className
 function clearNode(n){while(n.firstChild)n.removeChild(n.firstChild);}
 const near=(a,b)=>Math.abs(a-b)<=1e-9*Math.max(1,Math.abs(a),Math.abs(b));
 const r2=x=>Math.round(x*100)/100; // 仅用于显示，不参与判定
-/* SVG 图标（可填色） */
+function toHalfWidth(s){return (s||'').replace(/[！-～]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0)).replace(/　/g,' ');}
+function numOf(s){if(s==null)return null;const n=parseFloat(toHalfWidth(s).replace(/[^0-9.\-]/g,''));return isNaN(n)?null:n;}
+/* SVG 图标 */
 const SVG={
  tree:c=>`<svg class="svgicon" width="22" height="22" viewBox="0 0 24 24"><path d="M12 2 L18 9 H15 L20 15 H13 V22 H11 V15 H4 L9 9 H6 Z" fill="${c}"/></svg>`,
+ book:c=>`<svg class="svgicon" width="22" height="22" viewBox="0 0 24 24"><path d="M5 3 H16 a2 2 0 0 1 2 2 V21 H6 a2 2 0 0 1-2-2 Z" fill="${c}"/><path d="M9 7 H14 M9 11 H14" stroke="#fff" stroke-width="1.5"/></svg>`,
  coin:c=>`<svg class="svgicon" width="22" height="22" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="${c}"/><circle cx="12" cy="12" r="6" fill="none" stroke="#fff" stroke-width="1.6"/><text x="12" y="16" text-anchor="middle" font-size="9" fill="#fff" font-weight="bold">¥</text></svg>`,
  box:c=>`<svg class="svgicon" width="22" height="22" viewBox="0 0 24 24"><path d="M3 7 L12 3 L21 7 V18 L12 22 L3 18 Z" fill="${c}"/><path d="M3 7 L12 11 L21 7 M12 11 V22" stroke="#fff" stroke-width="1.3" fill="none"/></svg>`,
- person:c=>`<svg class="svgicon" width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="7" r="3.4" fill="${c}"/><path d="M5 21 C5 15 8 13 12 13 C16 13 19 15 19 21 Z" fill="${c}"/></svg>`,
- gear:c=>`<svg class="svgicon" width="22" height="22" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" fill="${c}"/><path fill="${c}" d="M11 2h2v3h-2zM11 19h2v3h-2zM2 11h3v2H2zM19 11h3v2h-2zM5 6.4l1.4-1.4 2.1 2.1-1.4 1.4zM15.5 16.9l1.4-1.4 2.1 2.1-1.4 1.4zM18.6 5l1.4 1.4-2.1 2.1-1.4-1.4zM8.5 15.5l-2.1 2.1L5 16.2l2.1-2.1z"/></svg>`,
- bottle:c=>`<svg class="svgicon" width="22" height="22" viewBox="0 0 24 24"><rect x="10" y="2" width="4" height="4" rx="1" fill="${c}"/><path d="M8 8 H16 V20 a2 2 0 0 1-2 2 H10 a2 2 0 0 1-2-2 Z" fill="${c}"/></svg>`
+ person:c=>`<svg class="svgicon" width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="7" r="3.4" fill="${c}"/><path d="M5 21 C5 15 8 13 12 13 C16 13 19 15 19 21 Z" fill="${c}"/></svg>`
 };
-/* 揭示面板控制 */
+/* 揭示面板 */
 function showReveal(which,formula,note){
   const box=$('#rev'+which);
   $('#rev'+which+'-f').innerHTML=formula;
@@ -209,9 +258,63 @@ function showReveal(which,formula,note){
   box.classList.add('show');
 }
 function resetReveals(){['1','2'].forEach(k=>$('#rev'+k).classList.remove('show'));}
+/* 想一想：判断问题，答错给线索，答对才放行 */
+function thinkBox(question,options){
+  const root=el('div','think');
+  const q=el('div','think-q',question);
+  const row=el('div','think-row');
+  const fb=el('div','think-fb');
+  let answered=false;const api={root,onPass:null};
+  options.forEach(o=>{
+    const b=el('button','btn think-opt');b.type='button';b.textContent=o.label;
+    b.onclick=()=>{
+      if(answered)return;
+      if(o.correct){answered=true;fb.innerHTML='<span class="think-ok">对，看下一步</span>';
+        row.querySelectorAll('button').forEach(x=>x.disabled=true);if(api.onPass)api.onPass();}
+      else fb.innerHTML='<span class="think-bad">再想想。'+(o.hint||'')+'</span>';
+    };
+    row.appendChild(b);
+  });
+  root.append(q,row,fb);
+  api.destroy=()=>row.querySelectorAll('button').forEach(b=>b.onclick=null);
+  return api;
+}
+/* 答案输入：数字 */
+function answerRow(placeholder,onSubmit){
+  const root=el('div','answer-row');
+  const inp=el('input');inp.className='eq-input';inp.type='text';inp.placeholder=placeholder;
+  const fb=el('div','input-fb');
+  const b=el('button','btn go');b.type='button';b.textContent='核对';
+  b.onclick=()=>onSubmit(inp.value,fb);
+  inp.addEventListener('keydown',e=>{if(e.key==='Enter')b.click();});
+  root.append(inp,fb,b);
+  return{root,destroy(){b.onclick=null;}};
+}
+/* 一元一次方程判定：唯一根、线性、全角兼容 */
+function parseLinear(expr,root){
+  const e=toHalfWidth(expr);
+  if(!e.includes('='))return{err:'要有等号，写成左右两边相等'};
+  const parts=e.split('=');
+  if(parts.length!==2)return{err:'只能有一个等号'};
+  const mk=s=>{
+    let c=s.replace(/[^0-9x+\-*/(). ]/g,'');
+    c=c.replace(/(\d)(?=[x(])/g,'$1*').replace(/\)(?=[x(\d])/g,')*').replace(/x(?=[\d(])/g,'x*');
+    try{const fn=Function('x','return ('+c+')');fn(1);return fn;}catch{return null;}
+  };
+  const L=mk(parts[0]),R=mk(parts[1]);
+  if(!L||!R)return{err:'式子没写对，检查运算符号和括号'};
+  const d=x=>L(x)-R(x);
+  if(!near(d(root),0))return{err:'x='+root+' 代进去，两边不相等'};
+  const a=root+1,bx=root+3.7;
+  const da=d(a),db=d(bx);
+  if(near(da,0)||near(db,0))return{err:'这是恒等式或有多个根，不是一元一次方程'};
+  const s1=da/(a-root),s2=(db-da)/(bx-a);
+  if(!near(s1,s2))return{err:'这是高次方程，有多个根；题目要一元一次'};
+  return{ok:true};
+}
 
 /* =========================================================
-   5 主题 / 11 题卡 数据
+   5 主题 / 11 题卡
 ========================================================= */
 const THEMES=[
  {id:'A',zone:'basic',color:'#3B82F6',name:'同一批东西，怎么分都不变',tsub:'两种安排，对齐的是同一批总量',
@@ -225,28 +328,48 @@ const THEMES=[
  {id:'E',zone:'adv',color:'#F59E0B',name:'算清两本账，再比大小',tsub:'先满足约束，再比利润',
   cards:['milk']}
 ];
-const DONE_KEY='equation-lab-done';
-function loadDone(){try{return new Set(JSON.parse(localStorage.getItem(DONE_KEY))||[]);}catch{return new Set();}}
-function saveDone(){try{localStorage.setItem(DONE_KEY,JSON.stringify([...doneSet]));}catch{}}
-const doneSet=loadDone();
-let curCard=null,sceneApi=null;
+const ZONE_OF={};THEMES.forEach(t=>t.cards.forEach(p=>ZONE_OF[p]=t.zone));
+const DONE_KEY='equation-lab-done-v2',DRILL_KEY='equation-lab-drill-v2';
+function loadSet(k){try{return new Set(JSON.parse(localStorage.getItem(k))||[]);}catch{return new Set();}}
+function saveSet(k,s){try{localStorage.setItem(k,JSON.stringify([...s]));}catch{}}
+const doneSet=loadSet(DONE_KEY),drillSet=loadSet(DRILL_KEY);
+let curCard=null,curVariant='main',sceneApi=null;
 
-/* =========================================================
-   场景接口：build(stage) 返回 {destroy}
-========================================================= */
-function openCard(pid){
-  curCard=pid;const c=CARDS[pid];
+/* 场景接口 */
+function openCard(pid,variant){
+  curCard=pid;curVariant=variant;const c=CARDS[pid];
   $('#card-title').textContent=c.name;
-  $('#stem-text').innerHTML=c.stem;
+  $('#stem-text').innerHTML=variant==='drill'?c.drill.stem:c.stem;
+  $('#mode-main').classList.toggle('active',variant==='main');
+  $('#mode-drill').classList.toggle('active',variant==='drill');
   resetReveals();
   const stage=$('#stage');clearNode(stage);
-  sceneApi=c.build(stage);
+  sceneApi=c.build(stage,variant);
+  renderRail();
   show('card');
 }
-function closeCard(){if(sceneApi&&sceneApi.destroy){sceneApi.destroy();}sceneApi=null;}
-
-/* 占位：CARDS 在后续脚本定义 */
+function closeCard(){if(sceneApi&&sceneApi.destroy)sceneApi.destroy();sceneApi=null;}
 let CARDS={};
+
+/* 左侧只读进度 */
+function statusDot(pid,set){
+  return `<i class="${set.has(pid)?'on':''}">${set.has(pid)?'✓':'·'}</i>`;
+}
+function renderRail(){
+  const rail=$('#card-rail');clearNode(rail);
+  rail.appendChild(el('div','rail-head','本分区进度（演示 / 独立）'));
+  const list=el('div','rail-list');
+  THEMES.filter(t=>t.zone===ZONE_OF[curCard]).forEach(t=>t.cards.forEach(pid=>{
+    const b=el('button','rail-item'+(pid===curCard?' current':''));b.type='button';
+    b.innerHTML=`<span class="rn">${CARDS[pid].name}</span><span class="rs">${statusDot(pid,doneSet)}${statusDot(pid,drillSet)}</span>`;
+    b.onclick=()=>{if(pid!==curCard)navigate('/card/'+pid);};
+    list.appendChild(b);
+  }));
+  rail.append(list);
+  const back=el('button','btn rail-back');back.type='button';back.textContent='← 返回地图';
+  back.onclick=()=>navigate('/map/'+ZONE_OF[curCard]);
+  rail.appendChild(back);
+}
 
 /* =========================================================
    地图渲染
@@ -260,9 +383,10 @@ function renderMap(zone){
     head.innerHTML=`<div class="dot">${t.id}</div><div><h2>${t.name}</h2><div class="tsub">${t.tsub}</div></div>`;
     const grid=el('div','card-grid');
     t.cards.forEach((pid,i)=>{
-      const tile=el('div','tile'+(doneSet.has(pid)?' done':''));
-      tile.innerHTML=`<div class="no">${t.id}-${i+1}</div><div class="nm">${CARDS[pid].name}</div>`;
-      tile.onclick=()=>openCard(pid);
+      const tile=el('button','tile');tile.type='button';
+      tile.innerHTML=`<div class="no">${t.id}-${i+1}</div><div class="nm"><span>${CARDS[pid].name}</span>
+        <span class="st">${statusDot(pid,doneSet)}${statusDot(pid,drillSet)}</span></div>`;
+      tile.onclick=()=>navigate('/card/'+pid);
       grid.appendChild(tile);
     });
     block.append(head,grid);wrap.appendChild(block);
@@ -270,513 +394,987 @@ function renderMap(zone){
 }
 
 /* =========================================================
-   路由
+   路由：题卡独立地址，返回正确分区
 ========================================================= */
-let curZone='basic';
-function navigate(h){if(location.hash===h)applyHash();else location.hash=h;}
+function navigate(h){
+  const target=h.startsWith('#')?h:('#'+h);
+  if(location.hash===target)applyHash();else location.hash=target;
+}
 function applyHash(){
   const p=(location.hash||'').replace('#','').split('/').filter(Boolean);
   const v=p[0]||'home';
   if(v==='home'){closeCard();show('home');}
-  else if(v==='map'){curZone=p[1]||'basic';closeCard();renderMap(curZone);show('map');}
-  else if(v==='card'){const pid=p[1];if(CARDS[pid])openCard(pid);}
+  else if(v==='map'){const zone=p[1]||'basic';closeCard();renderMap(zone);show('map');}
+  else if(v==='card'){const pid=p[1];if(CARDS[pid])openCard(pid,curVariant==='drill'&&pid===curCard?'drill':'main');}
 }
 window.addEventListener('hashchange',applyHash);
 document.querySelectorAll('.zone-card').forEach(z=>z.onclick=()=>navigate('/map/'+z.dataset.zone));
 $('#map-back').onclick=()=>navigate('/home');
-$('#card-back').onclick=()=>{closeCard();navigate('/map/'+curZone);};
-
-/* =========================================================
-   场景实现（11 张独立题卡）
-========================================================= */
-/* 通用：完成标记 */
-function markDone(){if(!doneSet.has(curCard)){doneSet.add(curCard);saveDone();}}
+$('#card-back').onclick=()=>navigate('/map/'+ZONE_OF[curCard]);
+$('#mode-main').onclick=()=>{if(curVariant!=='main')openCard(curCard,'main');};
+$('#mode-drill').onclick=()=>{if(curVariant!=='drill')openCard(curCard,'drill');};
+function markDone(){const s=curVariant==='drill'?drillSet:doneSet;const k=curVariant==='drill'?DRILL_KEY:DONE_KEY;
+  if(!s.has(curCard)){s.add(curCard);saveSet(k,s);}}
 
 CARDS={
 tree:{
  name:'几个人种树',
  stem:'一组人去种树。<b>每人种 5 棵，还剩 3 棵</b>；改成<b>每人种 6 棵，就还缺 4 棵</b>。问有多少人、一共多少棵树？',
- build(stage){
-   let step=0;
+ drill:{stem:'一组人发练习本。<b>每人发 5 本，还剩 3 本</b>；改成<b>每人发 7 本，就还缺 5 本</b>。问有多少人、一共多少本？'},
+ build(stage,variant){
+   const D=variant==='drill'
+     ?{ic:'book',unit:'本',low:5,high:7,extra:3,lack:5,people:4,total:23}
+     :{ic:'tree',unit:'棵',low:5,high:6,extra:3,lack:4,people:7,total:38};
+   const gap=D.high-D.low, icon=c=>D.ic==='tree'?SVG.tree(c):SVG.book(c);
    const wrap=el('div','stage-inner');wrap.style.width='100%';
    const fig=el('div');fig.style.width='100%';
-   const btn=el('button','btn go');
-   function render(){
-     clearNode(fig);
-     if(step===0){
-       fig.innerHTML=`<div style="display:flex;flex-direction:column;gap:14px;align-items:center">
+   const slot=el('div');slot.style.width='100%';
+   const cleanups=[];
+   function setSlot(node){clearNode(slot);if(node)slot.appendChild(node);}
+   function goto(n){
+     if(n===0){
+       clearNode(fig);
+       fig.innerHTML=`<div style="display:flex;flex-direction:column;gap:14px;align-items:center;width:100%">
          <div style="border:2px solid var(--line);border-radius:14px;padding:14px 18px;text-align:center">
-           <div style="font-size:12px;font-weight:800;color:var(--blue);margin-bottom:8px">每个人手里（5 棵）</div>
-           <div style="display:flex;gap:6px;justify-content:center">${SVG.tree('#3B82F6').repeat(5)}</div></div>
+           <div style="font-size:12px;font-weight:800;color:var(--blue);margin-bottom:8px">每个人手里（${D.low} ${D.unit}）</div>
+           <div style="display:flex;gap:6px;justify-content:center">${icon('#3B82F6').repeat(D.low)}</div></div>
          <div style="font-size:13.5px;color:var(--sub)">分完以后，桌上还多出来 →</div>
-         <div style="display:flex;gap:6px;align-items:center">${SVG.tree('#10B981').repeat(3)}
-           <span style="font-weight:800;color:#059669;font-size:14px">实有 3 棵</span></div>
+         <div style="display:flex;gap:6px;align-items:center">${icon('#10B981').repeat(D.extra)}
+           <span style="font-weight:800;color:#059669;font-size:14px">实有 ${D.extra} ${D.unit}</span></div>
        </div>`;
-       btn.textContent='给每人多分 1 棵';
-     }else if(step===1){
-       const empty='<span class="slot" style="width:34px;height:34px"></span>';
+       const b=el('button','btn go');b.type='button';b.textContent=`给每人多分 ${gap} ${D.unit}`;
+       b.onclick=()=>goto(1);
+       setSlot(b);cleanups.push(()=>b.onclick=null);
+     }else if(n===1){
+       const empty=`<span class="slot" style="width:34px;height:34px"></span>`;
+       clearNode(fig);
        fig.innerHTML=`<div style="display:flex;flex-direction:column;gap:14px;align-items:center;width:100%">
          <div style="border:2px solid var(--blue);border-radius:14px;padding:14px 18px;text-align:center;box-shadow:0 0 0 3px #DBEAFE">
-           <div style="font-size:12px;font-weight:800;color:var(--blue);margin-bottom:8px">每个人想种 6 棵（要再拿 1 棵）</div>
-           <div style="display:flex;gap:6px;justify-content:center">${SVG.tree('#3B82F6').repeat(5)}${SVG.tree('#60A5FA')}</div></div>
-         <div style="font-size:13.5px;color:var(--sub)">每人多 1 棵，这些"多出来的树"从哪来？</div>
+           <div style="font-size:12px;font-weight:800;color:var(--blue);margin-bottom:8px">每人想要 ${D.high} ${D.unit}（手里 ${D.low}，还要补 ${gap}）</div>
+           <div style="display:flex;gap:6px;justify-content:center">${icon('#3B82F6').repeat(D.low)}${icon('#93C5FD').repeat(gap)}</div></div>
+         <div style="font-size:13.5px;color:var(--sub)">每人多 ${gap} ${D.unit}，要从桌上拿，不够就留空位</div>
          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center">
-           ${SVG.tree('#10B981').repeat(3)}${empty.repeat(4)}</div>
-         <div style="display:flex;gap:8px;align-items:center;font-size:13px;font-weight:800;flex-wrap:wrap;justify-content:center">
-           <span style="color:#059669">桌上有 3 棵</span><span style="color:var(--sub)">＋</span><span style="color:#EF4444">还缺 4 棵</span>
-           <span style="color:var(--ink)">＝ 7 棵，每人 1 棵 → 有 7 个人</span></div>
+           ${icon('#10B981').repeat(D.extra)}${empty.repeat(D.lack)}</div>
        </div>`;
-       btn.textContent='我懂了，看答案核对';
-       showReveal('1','每人多 1 棵所需 = 3 + 4 = 7（棵）','每人多 1 棵，总共要多出来的树正好等于人数。桌上只有 3 棵、还缺 4 棵，所以是 7 个人。');
+       const tb=thinkBox(`这些空槽里的 ${D.unit}，现在在大家手里吗？`,[
+         {label:'在手里，已经有了',hint:'空槽是虚线，里面没有东西，看每个空槽。'},
+         {label:'不在，得另外补上',correct:true},
+         {label:'桌上剩的就够填',hint:`桌上只有 ${D.extra} ${D.unit}，空槽有 ${D.lack} 个，数一下。`}
+       ]);
+       tb.onPass=()=>{
+         showReveal('1',`每人多 ${gap} 个所需 = ${D.extra} + ${D.lack} = ${D.extra+D.lack}（${D.unit}）`,
+           `每人多 ${gap} ${D.unit}，总共要多出来的正好是 ${D.extra+D.lack} ${D.unit}；每人 ${gap} ${D.unit}，人数 = ${D.extra+D.lack}÷${gap}。`);
+         const b=el('button','btn go');b.type='button';b.textContent='我自己算人数';
+         b.onclick=()=>goto(2);
+         setSlot(b);cleanups.push(()=>b.onclick=null);
+       };
+       setSlot(tb.root);cleanups.push(tb.destroy);
      }else{
-       fig.innerHTML=`<div style="display:flex;flex-direction:column;gap:12px;align-items:center;width:100%">
-         <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">${SVG.person('#93C5FD').repeat(7)}</div>
-         <div style="font-weight:800;font-size:14px">7 个人，一共 38 棵树（图里只放 16 棵示意）</div>
-         <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;max-width:520px">${SVG.tree('#3B82F6').repeat(16)}</div>
-       </div>`;
-       btn.textContent='再玩一次';
-       showReveal('2','5×7+3 = 38，6×7−4 = 38','代回题目：两种算法都得到 38 棵，对得上。');
-       markDone();
+       clearNode(fig);
+       fig.innerHTML=`<div style="font-size:13.5px;color:var(--sub);text-align:center">
+         用 ${D.extra+D.lack} ÷ ${gap} 算出人数，填进去。</div>`;
+       const ar=answerRow(`人数是多少？（再想想总数，共多少 ${D.unit}）`,(val,fb)=>{
+         const n=numOf(val);
+         if(near(n,D.people)){
+           showReveal('2',`${D.low}×${D.people}+${D.extra} = ${D.total}，${D.high}×${D.people}−${D.lack} = ${D.total}`,
+             `代回题目：两种算法都得到 ${D.total} ${D.unit}，对得上。`);
+           markDone();
+           const b=el('button','btn go');b.type='button';b.textContent='再玩一次';
+           b.onclick=()=>{resetReveals();goto(0);};
+           setSlot(b);cleanups.push(()=>b.onclick=null);
+         }else{
+           fb.innerHTML=`<span style="color:var(--red);font-weight:800">不对。再看图：桌上 ${D.extra}、空槽 ${D.lack}，合起来除以 ${gap}。</span>`;
+         }
+       });
+       setSlot(ar.root);cleanups.push(ar.destroy);
      }
    }
-   btn.onclick=()=>{step=(step+1)%3;render();};
-   wrap.append(fig,btn);stage.appendChild(wrap);render();
-   return{destroy(){btn.onclick=null;}};
+   wrap.append(fig,slot);stage.appendChild(wrap);goto(0);
+   return{destroy(){cleanups.forEach(f=>{try{f();}catch{}});}};
  }
 },
 parts:{
  name:'加工零件总数',
  stem:'工厂做一批零件。<b>原计划每天做 120 个</b>，<b>实际每天做 160 个</b>，结果<b>提前 6 天</b>完成。这批零件一共多少个？',
- build(stage){
-   let x=2400,connected=false;
+ drill:{stem:'工厂做一批零件。<b>原计划每天做 100 个</b>，<b>实际每天做 125 个</b>，结果<b>提前 4 天</b>完成。这批零件一共多少个？'},
+ build(stage,variant){
+   const D=variant==='drill'
+     ?{slow:100,fast:125,fixed:4,answer:2000,min:800,max:3200}
+     :{slow:120,fast:160,fixed:6,answer:2880,min:1200,max:4200};
+   let x=Math.round((D.min+D.max)/2/D.slow)*D.slow,connected=false;
    const wrap=el('div','stage-inner');wrap.style.width='100%';
-   const rng=el('input');rng.type='range';rng.min=1200;rng.max=4200;rng.step=120;rng.value=x;
-   const cap=el('div','range-cap');cap.innerHTML='<span>慢 120/天</span><span class="range-val" style="font-size:18px">总数 <b id="xv">2400</b> 个</span><span>快 160/天</span>';
+   const rng=el('input');rng.type='range';rng.min=D.min;rng.max=D.max;rng.step=D.slow;rng.value=x;
+   const cap=el('div','range-cap');
+   cap.innerHTML=`<span>慢 ${D.slow}/天</span><span class="range-val" style="font-size:18px">总数 <b id="xv">${x}</b> 个</span><span>快 ${D.fast}/天</span>`;
    const fig=el('div');fig.style.width='100%';
-   const btn=el('button','btn go');
-   function vals(){const plan=x/120,act=x/160;return{plan,act,diff:plan-act};}
-   function render(){
+   const slot=el('div');slot.style.width='100%';
+   const cleanups=[];
+   function setSlot(node){clearNode(slot);if(node)node&&slot.appendChild(node);}
+   function draw(){
      $('#xv').textContent=x;
-     const b=vals(),max=35;
-     const wp=b.plan/max*100,wa=b.act/max*100,wd=b.diff/max*100;
+     const plan=x/D.slow,act=x/D.fast,end=act+D.fixed;
+     const max=Math.max(plan,end)+2;
+     const wp=plan/max*100,wa=act/max*100,wf=D.fixed/max*100;
+     const match=near(end,plan);
+     let state;
+     if(match)state=`<span style="color:#059669">接上固定的 ${D.fixed} 天后，正好对齐计划</span>`;
+     else if(end>plan)state=`<span style="color:var(--red)">接上后到第 ${r2(end)} 天，比计划还<b>多出 ${r2(end-plan)}</b> 天</span>`;
+     else state=`<span style="color:#D97706">接上后到第 ${r2(end)} 天，离计划<b>还差 ${r2(plan-end)}</b> 天</span>`;
      clearNode(fig);
      fig.innerHTML=`<div style="display:flex;flex-direction:column;gap:18px;width:100%">
-       <div><div style="font-size:12px;font-weight:800;color:var(--sub);margin-bottom:5px">原计划（慢）· ${r2(b.plan)} 天</div>
+       <div><div style="font-size:12px;font-weight:800;color:var(--sub);margin-bottom:5px">原计划（慢）· ${r2(plan)} 天</div>
          <div class="hbar"><div class="hseg" style="width:${wp}%;background:#3B82F6">计划用时</div></div></div>
-       <div><div style="font-size:12px;font-weight:800;color:var(--sub);margin-bottom:5px">实际（快）· ${r2(b.act)} 天</div>
+       <div><div style="font-size:12px;font-weight:800;color:var(--sub);margin-bottom:5px">实际（快）· ${r2(act)} 天 ${connected?'+ 固定 '+D.fixed+' 天':''}</div>
          <div class="hbar"><div class="hseg" style="width:${wa}%;background:#14B8A6">实际用时</div>
-         <div class="hseg" style="width:${wd}%;background:${connected?'#F59E0B':'#FCD34D'};border:2px dashed #F59E0B">差 ${r2(b.diff)} 天</div></div></div>
+         <div class="hseg ghost-seg" style="width:${connected?wf:0}%">固定 ${D.fixed} 天</div></div></div>
+       <div style="font-size:13.5px;font-weight:800;text-align:center">${state}</div>
      </div>`;
-     btn.textContent=connected?'改总数，再试':'把这 6 天接到实际用时末尾';
    }
-   rng.oninput=()=>{x=+rng.value;connected=false;resetReveals();render();};
-   btn.onclick=()=>{
-     connected=true;render();
-     const b=vals();
-     showReveal('1','实际用时 + 6 = 计划用时','x/160 + 6 = x/120：同一批货，快做省下来的时间正好是 6 天。');
-     if(near(b.diff,6)){showReveal('2','x = 2880（计划 24 天、实际 18 天）','代回：2880/120=24，2880/160=18，差正好 6。');markDone();}
-   };
+   rng.oninput=()=>{x=+rng.value;connected=false;resetReveals();draw();
+     const b=el('button','btn go');b.type='button';b.textContent=`把固定的 ${D.fixed} 天接到实际末尾`;
+     b.onclick=()=>{connected=true;draw();afterConnect();};
+     setSlot(b);cleanups.push(()=>b.onclick=null);};
+   function afterConnect(){
+     const plan=x/D.slow,act=x/D.fast,end=act+D.fixed,match=near(end,plan);
+     const tb=thinkBox(`看两条线，现在是什么情况？`,[
+       {label:'正好对齐计划',correct:match,hint:match?'':'看结束位置和计划条一样长吗。'},
+       {label:'比计划多出了',correct:end>plan,hint:end>plan?'':'实际条的结束刻度超过计划了吗？'},
+       {label:'还没到计划',correct:end<plan,hint:end<plan?'':'结束刻度在计划条左边还是右边？'}
+     ]);
+     tb.onPass=()=>{
+       if(match){
+         showReveal('1',`实际用时 + ${D.fixed} = 计划用时`,
+           `x/${D.fast} + ${D.fixed} = x/${D.slow}：同一批货，快做省下来的时间正好是 ${D.fixed} 天。`);
+         const b=el('button','btn go');b.type='button';b.textContent='我自己算总数';
+         b.onclick=()=>askTotal();setSlot(b);cleanups.push(()=>b.onclick=null);
+       }else{
+         const b=el('button','btn go');b.type='button';b.textContent='改总数，再试';
+         b.onclick=()=>{resetReveals();draw();
+           const c=el('button','btn go');c.type='button';c.textContent=`把固定的 ${D.fixed} 天接到实际末尾`;
+           c.onclick=()=>{connected=true;draw();afterConnect();};
+           setSlot(c);cleanups.push(()=>c.onclick=null);};
+         setSlot(b);cleanups.push(()=>b.onclick=null);
+       }
+     };
+     setSlot(tb.root);cleanups.push(tb.destroy);
+   }
+   function askTotal(){
+     clearNode(fig);
+     fig.innerHTML=`<div style="font-size:13.5px;color:var(--sub);text-align:center">解出方程，把总数填进去。</div>`;
+     const ar=answerRow('这批零件一共多少个？',(val,fb)=>{
+       const n=numOf(val);
+       if(near(n,D.answer)){
+         showReveal('2',`x = ${D.answer}（计划 ${D.answer/D.slow} 天、实际 ${D.answer/D.fast} 天）`,
+           `代回：${D.answer}/${D.slow}=${D.answer/D.slow}，${D.answer}/${D.fast}=${D.answer/D.fast}，差正好 ${D.fixed}。`);
+         markDone();
+         const b=el('button','btn go');b.type='button';b.textContent='再玩一次';
+         b.onclick=()=>{resetReveals();connected=false;draw();
+           const c=el('button','btn go');c.type='button';c.textContent=`把固定的 ${D.fixed} 天接到实际末尾`;
+           c.onclick=()=>{connected=true;draw();afterConnect();};
+           setSlot(c);cleanups.push(()=>c.onclick=null);};
+         setSlot(b);cleanups.push(()=>b.onclick=null);
+       }else fb.innerHTML=`<span style="color:var(--red);font-weight:800">不对，回到方程再算。</span>`;
+     });
+     setSlot(ar.root);cleanups.push(ar.destroy);
+   }
    const rw=el('div','range-wrap');rw.append(cap,rng);
-   wrap.append(rw,fig,btn);stage.appendChild(wrap);render();
-   return{destroy(){rng.oninput=null;btn.onclick=null;}};
+   wrap.append(rw,fig,slot);stage.appendChild(wrap);draw();
+   const b0=el('button','btn go');b0.type='button';b0.textContent=`把固定的 ${D.fixed} 天接到实际末尾`;
+   b0.onclick=()=>{connected=true;draw();afterConnect();};
+   setSlot(b0);cleanups.push(()=>b0.onclick=null);
+   return{destroy(){cleanups.forEach(f=>{try{f();}catch{}});rng.oninput=null;}};
  }
 },
 bus:{
  name:'春游租车',
- stem:'同学春游。<b>租 45 座的车，有 15 人没座位</b>；改成<b>租 60 座的车，可以少租 1 辆，而且正好坐满</b>。一共多少人、原计划租几辆？',
- build(stage){
+ stem:'同学春游。<b>租 45 座的车，有 15 人没座位</b>；改成<b>租 60 座的车，可以少租 1 辆，而且正好坐满</b>。45 座每辆租金 220 元，60 座每辆 300 元。一共多少人、原计划租几辆？怎样租车最省钱？',
+ drill:{stem:'同学春游。<b>租 40 座的车，有 10 人没座位</b>；改成<b>租 50 座的车，可以少租 1 辆，而且正好坐满</b>。40 座每辆租金 200 元，50 座每辆 260 元。一共多少人、原计划租几辆？怎样租车最省钱？'},
+ build(stage,variant){
+   const D=variant==='drill'
+     ?{small:40,big:50,stand:10,n:6,people:250,sr:200,br:260,
+       cands:[{s:7,b:0,cost:1400},{s:5,b:1,cost:1260},{s:0,b:5,cost:1300}],bestCost:1260}
+     :{small:45,big:60,stand:15,n:5,people:240,sr:220,br:300,
+       cands:[{s:6,b:0,cost:1320},{s:4,b:1,cost:1180},{s:0,b:4,cost:1200}],bestCost:1180};
    let n=3,swapped=false;
    const wrap=el('div','stage-inner');wrap.style.width='100%';
    const rng=el('input');rng.type='range';rng.min=2;rng.max=9;rng.step=1;rng.value=n;
-   const cap=el('div','range-cap');cap.innerHTML='<span>2 辆</span><span class="range-val" style="font-size:18px">原计划 <b id="nv">3</b> 辆</span><span>9 辆</span>';
+   const cap=el('div','range-cap');
+   cap.innerHTML=`<span>2 辆</span><span class="range-val" style="font-size:18px">原计划 <b id="nv">${n}</b> 辆</span><span>9 辆</span>`;
    const fig=el('div');fig.style.width='100%';
-   const btn=el('button','btn go');
-   const feeHtml=`<table class="fee-table" style="margin-top:10px"><tr><th>方案</th><th>租金</th></tr>
-     <tr><td>6 辆 45 座</td><td>6×220 = 1320</td></tr>
-     <tr><td>4 辆 60 座</td><td>4×300 = 1200</td></tr>
-     <tr class="best"><td>4 辆 45 座 + 1 辆 60 座</td><td>4×220+300 = 1180（最省）</td></tr></table>`;
-   function render(){
+   const slot=el('div');slot.style.width='100%';
+   const cleanups=[];
+   function setSlot(node){clearNode(slot);if(node)slot.appendChild(node);}
+   const cars=(num,c)=>SVG.box(c).repeat(Math.max(0,Math.min(num,8)));
+   function draw(){
      $('#nv').textContent=n;
-     const L=45*n+15,R=60*(n-1);
+     const L=D.small*n+D.stand,R=D.big*(n-1);
+     let diff;
+     if(near(L,R))diff=`<span style="color:#059669">${D.big} 座车正好接住 ${L} 人</span>`;
+     else if(L>R)diff=`<span style="color:var(--red)">${D.big} 座只有 ${R} 个座，还<b>缺 ${L-R}</b> 个座位</span>`;
+     else diff=`<span style="color:#D97706">座位比人多，<b>空出 ${R-L}</b> 个座</span>`;
      clearNode(fig);
-     const cars=(num,color)=>SVG.box(color).repeat(Math.max(0,Math.min(num,8)));
      fig.innerHTML=`<div style="display:flex;flex-direction:column;gap:16px;width:100%">
-       <div><div style="font-size:12.5px;font-weight:800;color:var(--blue);margin-bottom:6px">45 座方案：${n} 辆车 + 15 人站着 = ${L} 人</div>
-         <div style="display:flex;gap:5px;align-items:center;flex-wrap:wrap">${cars(n,'#3B82F6')}${SVG.person('#F59E0B').repeat(3)}<span style="font-size:12px;font-weight:800;color:#D97706">15 人没座</span></div></div>
-       <div><div style="font-size:12.5px;font-weight:800;color:var(--teal);margin-bottom:6px">60 座方案：少租 1 辆（${n-1} 辆），正好坐满 = ${R} 人</div>
+       <div><div style="font-size:12.5px;font-weight:800;color:var(--blue);margin-bottom:6px">${D.small} 座方案：${n} 辆 + ${D.stand} 人站着 = ${L} 人</div>
+         <div style="display:flex;gap:5px;align-items:center;flex-wrap:wrap">${cars(n,'#3B82F6')}
+           <span style="font-size:12px;font-weight:800;color:#D97706">${D.stand} 人没座</span></div></div>
+       <div><div style="font-size:12.5px;font-weight:800;color:var(--teal);margin-bottom:6px">${D.big} 座方案：少租 1 辆（${n-1} 辆）= ${R} 个座位</div>
          <div style="display:flex;gap:5px;align-items:center;flex-wrap:wrap;opacity:${swapped?1:.35}">${cars(n-1,'#14B8A6')}</div></div>
+       <div style="font-size:13.5px;font-weight:800;text-align:center">${swapped?diff:''}</div>
      </div>`;
-     btn.textContent=swapped?'换回 45 座':'把车队换成 60 座车';
    }
-   rng.oninput=()=>{n=+rng.value;swapped=false;resetReveals();render();};
-   btn.onclick=()=>{
-     swapped=!swapped;render();
-     const L=45*n+15,R=60*(n-1);
-     if(swapped){
-       showReveal('1','撤 1 辆 45 座，45 人 + 15 站客 = 60 人','留下的车每辆多 15 个座位，正好接住这 60 人。两批是同一群人。');
-       if(near(L,R)){showReveal('2','45n+15 = 60(n−1)，n=5，共 240 人',feeHtml);markDone();}
-     }
-   };
+   function afterSwap(){
+     const L=D.small*n+D.stand,R=D.big*(n-1),match=near(L,R);
+     const tb=thinkBox('换车后，座位和人是什么关系？',[
+       {label:'正好接住',correct:match,hint:match?'':'看下面红色或橙色的提示。'},
+       {label:'还缺座位',correct:L>R,hint:L>R?'':'车的座位真的不够吗？数一下。'},
+       {label:'有空座位',correct:R>L,hint:R>L?'':'座位比人多还是少？'}
+     ]);
+     tb.onPass=()=>{
+       if(match){
+         showReveal('1',`${D.small}n+${D.stand} = ${D.big}(n−1)`,'撤一辆小车，多出来的座位正好接住站着的人；两批是同一群人。');
+         const b=el('button','btn go');b.type='button';b.textContent='我自己算人数和辆数';
+         b.onclick=()=>askPeople();setSlot(b);cleanups.push(()=>b.onclick=null);
+       }else{
+         const b=el('button','btn go');b.type='button';b.textContent='改辆数，再试';
+         b.onclick=()=>prepSwap();setSlot(b);cleanups.push(()=>b.onclick=null);
+       }
+     };
+     setSlot(tb.root);cleanups.push(tb.destroy);
+   }
+   function prepSwap(){
+     const b=el('button','btn go');b.type='button';b.textContent=`把车队换成 ${D.big} 座车`;
+     b.onclick=()=>{swapped=true;draw();afterSwap();};
+     setSlot(b);cleanups.push(()=>b.onclick=null);
+   }
+   function askPeople(){
+     const ar=answerRow('先填原计划租几辆',(val,fb)=>{
+       if(near(numOf(val),D.n)){
+         const ar2=answerRow('一共多少人？',(v2,f2)=>{
+           if(near(numOf(v2),D.people)){askCost();}
+           else f2.innerHTML='<span style="color:var(--red);font-weight:800">不对，用辆数乘座位再加站着的人。</span>';
+         });
+         setSlot(ar2.root);cleanups.push(ar2.destroy);
+       }else fb.innerHTML='<span style="color:var(--red);font-weight:800">辆数不对，回到方程再解。</span>';
+     });
+     setSlot(ar.root);cleanups.push(ar.destroy);
+   }
+   function askCost(){
+     clearNode(fig);
+     fig.innerHTML=`<div style="font-size:13.5px;color:var(--sub);text-align:center">
+       小车 ${D.sr}/辆、大车 ${D.br}/辆。算出每个方案的费用，选最省的。</div>`;
+     const tb=thinkBox('哪个方案最省钱？',D.cands.map(c=>({
+       label:`${c.s} 小 + ${c.b} 大`,
+       correct:c.cost===D.bestCost,
+       hint:'把每辆车的租金加起来再比。'
+     })));
+     tb.onPass=()=>{
+       showReveal('2',`最省 ${D.bestCost} 元，共 ${D.people} 人、原计划 ${D.n} 辆`,
+         '代回：座位正好够人，费用在几个方案里最低。');
+       markDone();
+       const b=el('button','btn go');b.type='button';b.textContent='再玩一次';
+       b.onclick=()=>{resetReveals();swapped=false;n=3;rng.value=3;draw();prepSwap();};
+       setSlot(b);cleanups.push(()=>b.onclick=null);
+     };
+     setSlot(tb.root);cleanups.push(tb.destroy);
+   }
+   rng.oninput=()=>{n=+rng.value;swapped=false;resetReveals();draw();prepSwap();};
    const rw=el('div','range-wrap');rw.append(cap,rng);
-   wrap.append(rw,fig,btn);stage.appendChild(wrap);render();
-   return{destroy(){rng.oninput=null;btn.onclick=null;}};
+   wrap.append(rw,fig,slot);stage.appendChild(wrap);draw();prepSwap();
+   return{destroy(){cleanups.forEach(f=>{try{f();}catch{}});rng.oninput=null;}};
  }
 },
 box:{
  name:'每箱装多少',
  stem:'<b>5 台 A 机器</b>一天的产品，装满 8 箱还剩 4 个；<b>7 台 B 机器</b>一天的产品，装满 11 箱还剩 1 个。已知<b>每台 A 比每台 B 多产 1 个</b>。每箱装多少个？',
- build(stage){
+ drill:{stem:'<b>4 台 A 机器</b>一天的产品，装满 6 箱正好；<b>5 台 B 机器</b>一天的产品，装满 7 箱正好。已知<b>每台 A 比每台 B 多产 1 个</b>。每箱装多少个？'},
+ build(stage,variant){
+   const D=variant==='drill'
+     ?{mA:4,aBox:6,aRest:0,mB:5,bBox:7,bRest:0,x:10,A:15,B:14,min:4,max:18}
+     :{mA:5,aBox:8,aRest:4,mB:7,bBox:11,bRest:1,x:12,A:20,B:19,min:4,max:20};
    let x=8,fixed=false;
    const wrap=el('div','stage-inner');wrap.style.width='100%';
-   const rng=el('input');rng.type='range';rng.min=4;rng.max=20;rng.step=1;rng.value=x;
-   const cap=el('div','range-cap');cap.innerHTML='<span>4 个/箱</span><span class="range-val" style="font-size:18px">每箱 <b id="bxv">8</b> 个</span><span>20 个/箱</span>';
+   const rng=el('input');rng.type='range';rng.min=D.min;rng.max=D.max;rng.step=1;rng.value=x;
+   const cap=el('div','range-cap');
+   cap.innerHTML=`<span>${D.min} 个/箱</span><span class="range-val" style="font-size:18px">每箱 <b id="bxv">${x}</b> 个</span><span>${D.max} 个/箱</span>`;
    const fig=el('div');fig.style.width='100%';
-   const btn=el('button','btn go');
-   function vals(){return{A:(8*x+4)/5,B:(11*x+1)/7};}
-   function render(){
+   const slot=el('div');slot.style.width='100%';
+   const cleanups=[];
+   function setSlot(node){clearNode(slot);if(node)slot.appendChild(node);}
+   const isInt=v=>near(v,Math.round(v));
+   function vals(){return{A:(D.aBox*x+D.aRest)/D.mA,B:(D.bBox*x+D.bRest)/D.mB};}
+   function showV(v){return isInt(v)?('= '+v):('≈ '+r2(v));}
+   function draw(){
      $('#bxv').textContent=x;
      const v=vals();
      const delta=v.A-(v.B+1);
-     const status=near(delta,0)?'补 1 个后，B 和 A 一样长':delta>0?('补 1 个后还差 '+r2(delta)+' 个'):('补 1 个后反而多出 '+r2(-delta)+' 个');
+     let status;
+     if(near(delta,0))status='<span style="color:#059669">补 1 个后，B 和 A 一样长</span>';
+     else if(delta>0)status=`<span style="color:var(--red)">补 1 个后还差 ${r2(delta)} 个</span>`;
+     else status=`<span style="color:#D97706">补 1 个后反而多出 ${r2(-delta)} 个</span>`;
      clearNode(fig);
      fig.innerHTML=`<div style="display:flex;flex-direction:column;gap:16px;width:100%">
-       <div style="font-size:12.5px;color:var(--sub);text-align:center">单台机器一天的产量（精确值，不四舍五入）</div>
-       <div><div style="font-size:12px;font-weight:800;color:var(--blue);margin-bottom:5px">单台 A = (8×${x}+4)/5 = ${r2(v.A)} 个</div>
+       <div style="font-size:12.5px;color:var(--sub);text-align:center">单台机器一天的产量（条长按精确值，不四舍五入）</div>
+       <div><div style="font-size:12px;font-weight:800;color:var(--blue);margin-bottom:5px">单台 A = (${D.aBox}×${x}+${D.aRest})/${D.mA} ${showV(v.A)} 个</div>
          <div class="hbar"><div class="hseg" style="width:${v.A/22*100}%;background:#3B82F6">A</div></div></div>
-       <div><div style="font-size:12px;font-weight:800;color:var(--teal);margin-bottom:5px">单台 B = (11×${x}+1)/7 = ${r2(v.B)} 个</div>
+       <div><div style="font-size:12px;font-weight:800;color:var(--teal);margin-bottom:5px">单台 B = (${D.bBox}×${x}+${D.bRest})/${D.mB} ${showV(v.B)} 个</div>
          <div class="hbar"><div class="hseg" style="width:${v.B/22*100}%;background:#14B8A6">B</div>
          <div class="hseg" style="width:${fixed?1/22*100:0}%;background:#F59E0B">+1</div></div></div>
-       <div style="font-size:13px;font-weight:800;color:${near(v.A,v.B+1)?'#059669':'var(--sub)'};text-align:center">
-         ${status}</div>
+       <div style="font-size:13px;font-weight:800;text-align:center">${fixed?status:''}</div>
      </div>`;
-     btn.textContent=fixed?'改每箱数，再试':'给一台 B 补 1 个';
    }
-   rng.oninput=()=>{x=+rng.value;fixed=false;resetReveals();render();};
-   btn.onclick=()=>{
-     fixed=true;render();
-     const v=vals();
-     showReveal('1','单台 A = 单台 B + 1','(8x+4)/5 = (11x+1)/7 + 1：把少的那 1 个补上，两台机器就对齐了。');
-     if(near(v.A,v.B+1)){showReveal('2','x = 12（A=20、B=19）','代回：(8×12+4)/5=20，(11×12+1)/7=19，正好差 1。');markDone();}
-   };
+   function afterFix(){
+     const v=vals(),match=near(v.A,v.B+1);
+     const tb=thinkBox('给 B 补 1 个后，两条条什么关系？',[
+       {label:'正好对齐',correct:match,hint:match?'':'看下面红或橙色提示。'},
+       {label:'还差一些',correct:v.A>v.B+1,hint:v.A>v.B+1?'':'A 条的结束位置比 B+1 长吗？'},
+       {label:'反而多出',correct:v.B+1>v.A,hint:v.B+1>v.A?'':'B+1 条超过 A 了吗？'}
+     ]);
+     tb.onPass=()=>{
+       if(match){
+         showReveal('1','单台 A = 单台 B + 1',`(${D.aBox}x+${D.aRest})/${D.mA} = (${D.bBox}x+${D.bRest})/${D.mB} + 1`);
+         const b=el('button','btn go');b.type='button';b.textContent='我自己算每箱个数';
+         b.onclick=()=>askX();setSlot(b);cleanups.push(()=>b.onclick=null);
+       }else{
+         const b=el('button','btn go');b.type='button';b.textContent='改每箱数，再试';
+         b.onclick=()=>prepFix();setSlot(b);cleanups.push(()=>b.onclick=null);
+       }
+     };
+     setSlot(tb.root);cleanups.push(tb.destroy);
+   }
+   function prepFix(){
+     const b=el('button','btn go');b.type='button';b.textContent='给一台 B 补 1 个';
+     b.onclick=()=>{fixed=true;draw();afterFix();};
+     setSlot(b);cleanups.push(()=>b.onclick=null);
+   }
+   function askX(){
+     const ar=answerRow('每箱装多少个？',(val,fb)=>{
+       if(near(numOf(val),D.x)){
+         showReveal('2',`x = ${D.x}（A=${D.A}、B=${D.B}）`,
+           `代回：单台 A ${D.A}、单台 B ${D.B}，正好差 1，都是整数。`);
+         markDone();
+         const b=el('button','btn go');b.type='button';b.textContent='再玩一次';
+         b.onclick=()=>{resetReveals();fixed=false;x=8;rng.value=8;draw();prepFix();};
+         setSlot(b);cleanups.push(()=>b.onclick=null);
+       }else fb.innerHTML='<span style="color:var(--red);font-weight:800">不对，回到方程再解。</span>';
+     });
+     setSlot(ar.root);cleanups.push(ar.destroy);
+   }
+   rng.oninput=()=>{x=+rng.value;fixed=false;resetReveals();draw();prepFix();};
    const rw=el('div','range-wrap');rw.append(cap,rng);
-   wrap.append(rw,fig,btn);stage.appendChild(wrap);render();
-   return{destroy(){rng.oninput=null;btn.onclick=null;}};
+   wrap.append(rw,fig,slot);stage.appendChild(wrap);draw();prepFix();
+   return{destroy(){cleanups.forEach(f=>{try{f();}catch{}});rng.oninput=null;}};
  }
 },
 tunnel:{
  name:'挖隧道还要多久',
  stem:'挖一条长 <b>146 米</b>的隧道。前 3 天一共挖了 <b>26 米</b>（前 2 天只有甲，第 3 天起甲乙一起）。已知<b>甲每天比乙多挖 2 米</b>。照这样算，剩下的还要多少天？',
- build(stage){
-   let removed=0,checked=false;
+ drill:{stem:'挖一条长 <b>142 米</b>的隧道。前 3 天一共挖了 <b>22 米</b>（前 2 天只有甲，第 3 天起甲乙一起）。已知<b>甲每天比乙多挖 2 米</b>。照这样算，剩下的还要多少天？'},
+ build(stage,variant){
+   const D=variant==='drill'
+     ?{L:142,S:22,b:4,jia:6,base:16,remain:120,days:12}
+     :{L:146,S:26,b:5,jia:7,base:20,remain:120,days:10};
+   let removed=0;
    const wrap=el('div','stage-inner');wrap.style.width='100%';
    const fig=el('div');fig.style.width='100%';
-   const btn=el('button','btn go');
-   const SC=13; // 每米像素
+   const slot=el('div');slot.style.width='100%';
+   const cleanups=[];
+   function setSlot(node){clearNode(slot);if(node)slot.appendChild(node);}
+   const SC=13;
    function col(parts,label){
      return `<div style="display:flex;flex-direction:column;align-items:center;gap:4px">
        <div style="display:flex;flex-direction:column-reverse;justify-content:flex-start;height:${12*SC}px">
-         ${parts.map(p=> p.fade
-           ? `<div style="width:46px;height:${p.h*SC}px;background:transparent;border:2px dashed #CBD5E1;border-radius:5px"></div>`
-           : `<div style="width:46px;height:${p.h*SC}px;background:${p.c};border-radius:5px;display:grid;place-items:center;font-size:10px;font-weight:800;color:#fff">${p.t||''}</div>`
+         ${parts.map(p=>p.fade
+           ?`<div style="width:46px;height:${p.h*SC}px;background:transparent;border:2px dashed #CBD5E1;border-radius:5px"></div>`
+           :`<div style="width:46px;height:${p.h*SC}px;background:${p.c};border-radius:5px;display:grid;place-items:center;font-size:10px;font-weight:800;color:#fff">${p.t||''}</div>`
          ).join('')}
        </div><div style="font-size:11px;font-weight:800;color:var(--sub)">${label}</div></div>`;
    }
-   function render(){
-     const fade2=removed>0; // 第1段
-     const p1=[{h:5,c:'#3B82F6',t:''},{h:2,c:'#F59E0B',t:'2',fade:fade2}];
-     const p2=[{h:5,c:'#3B82F6'},{h:2,c:'#F59E0B',t:'2',fade:removed>1}];
-     const p3=[{h:5,c:'#14B8A6',t:''},{h:5,c:'#3B82F6'},{h:2,c:'#F59E0B',t:'2',fade:removed>2}];
+   function draw(){
+     const p1=[{h:D.b,c:'#3B82F6'},{h:2,c:'#F59E0B',t:'2',fade:removed>0}];
+     const p2=[{h:D.b,c:'#3B82F6'},{h:2,c:'#F59E0B',t:'2',fade:removed>1}];
+     const p3=[{h:D.b,c:'#14B8A6'},{h:D.b,c:'#3B82F6'},{h:2,c:'#F59E0B',t:'2',fade:removed>2}];
      clearNode(fig);
      fig.innerHTML=`<div style="display:flex;flex-direction:column;gap:12px;align-items:center;width:100%">
        <div style="display:flex;gap:18px;justify-content:center;flex-wrap:wrap">
          ${col(p1,'第1天 甲')}${col(p2,'第2天 甲')}${col(p3,'第3天 甲+乙')}</div>
-       <div style="font-size:13px;font-weight:800;color:var(--sub)">已挖 26 米，橙色是甲每天多挖的 2 米（共 3 段）</div>
+       <div style="font-size:13px;font-weight:800;color:var(--sub)">
+         ${removed<3?`橙色是甲每天多挖的 2 米（还剩 ${3-removed} 段没扣）`:`扣完 3 段，剩下 ${D.base} 米`}</div>
      </div>`;
-     if(!checked)btn.textContent=removed<3?`扣掉甲多挖的 2 米（第 ${removed+1} 段）`:'看答案核对';
-     else btn.textContent='再玩一次';
    }
-   btn.onclick=()=>{
-     if(checked){removed=0;checked=false;resetReveals();render();return;}
-     if(removed<3){removed++;render();}
-     if(removed===3){
-       showReveal('1','26 − 3×2 = 20 = 4 份乙的日工作量','扣掉甲多挖的 6 米，剩下 20 米正好是 4 份（甲3天里的基础份额 + 乙1份），所以乙每天 5 米，甲每天 7 米。');
-       checked=true;
-       showReveal('2','剩 120 ÷ (7+5) = 10 天','代回：全长 146，已挖 26，剩 120；两人合挖每天 12 米，还要 10 天。');
-       markDone();render();
-     }
-   };
-   wrap.append(fig,btn);stage.appendChild(wrap);render();
-   return{destroy(){btn.onclick=null;}};
+   function prepRemove(){
+     const b=el('button','btn go');b.type='button';
+     b.textContent=removed<3?`扣掉甲多挖的 2 米（第 ${removed+1} 段）`:'';
+     b.onclick=()=>{removed++;draw();if(removed<3)prepRemove();else askParts();};
+     setSlot(b);cleanups.push(()=>b.onclick=null);
+   }
+   function askParts(){
+     const tb=thinkBox(`扣完后剩下 ${D.base} 米。这是哪几份？`,[
+       {label:'4 份，每份就是乙每天挖的',correct:true},
+       {label:'3 份，对应 3 天',hint:'前2天各有1份基础，第3天有2份，加起来数。'},
+       {label:'6 份',hint:'扣掉橙色后，看每根柱子里还剩几段实心的。'}
+     ]);
+     tb.onPass=()=>{
+       showReveal('1',`${D.S} − 3×2 = ${D.base} = 4 份乙的日工作量`,
+         `每份 ${D.base}/4 = ${D.b} 米，所以乙每天 ${D.b} 米、甲每天 ${D.jia} 米。`);
+       const b=el('button','btn go');b.type='button';b.textContent='我自己算还要多少天';
+       b.onclick=()=>askDays();setSlot(b);cleanups.push(()=>b.onclick=null);
+     };
+     setSlot(tb.root);cleanups.push(tb.destroy);
+   }
+   function askDays(){
+     const ar=answerRow(`全长 ${D.L}、已挖 ${D.S}，剩下还要几天？`,(val,fb)=>{
+       if(near(numOf(val),D.days)){
+         showReveal('2',`剩 ${D.remain} ÷ (${D.jia}+${D.b}) = ${D.days} 天`,
+           `代回：两人合挖每天 ${D.jia+D.b} 米，${D.days} 天完成剩下的 ${D.remain} 米。`);
+         markDone();
+         const b=el('button','btn go');b.type='button';b.textContent='再玩一次';
+         b.onclick=()=>{resetReveals();removed=0;draw();prepRemove();};
+         setSlot(b);cleanups.push(()=>b.onclick=null);
+       }else fb.innerHTML='<span style="color:var(--red);font-weight:800">不对，先算剩下多少米，再除以合挖速度。</span>';
+     });
+     setSlot(ar.root);cleanups.push(ar.destroy);
+   }
+   wrap.append(fig,slot);stage.appendChild(wrap);draw();prepRemove();
+   return{destroy(){cleanups.forEach(f=>{try{f();}catch{}});}};
  }
 },
 save:{
- name:'三年定期的本金',
+ name:'定期的本金',
  stem:'一笔钱存银行三年定期，<b>年利率 2.2%（单利）</b>，到期<b>本金加利息一共 21320 元</b>。当初存进去的本金是多少？',
- build(stage){
-   let P=18000;
+ drill:{stem:'一笔钱存两年定期，<b>年利率 3%（单利）</b>，到期<b>本金加利息一共 5300 元</b>。当初存进去的本金是多少？'},
+ build(stage,variant){
+   const D=variant==='drill'
+     ?{rate:0.03,years:2,goal:5300,P:5000,min:3000,max:7000,step:100,start:4000}
+     :{rate:0.022,years:3,goal:21320,P:20000,min:12000,max:26000,step:200,start:18000};
+   const factor=1+D.rate*D.years;
+   let P=D.start;
    const wrap=el('div','stage-inner');wrap.style.width='100%';
-   const rng=el('input');rng.type='range';rng.min=12000;rng.max=26000;rng.step=200;rng.value=P;
-   const cap=el('div','range-cap');cap.innerHTML='<span>12000</span><span class="range-val" style="font-size:18px">本金 <b id="sv">18000</b> 元</span><span>26000</span>';
+   const rng=el('input');rng.type='range';rng.min=D.min;rng.max=D.max;rng.step=D.step;rng.value=P;
+   const cap=el('div','range-cap');
+   cap.innerHTML=`<span>${D.min}</span><span class="range-val" style="font-size:18px">本金 <b id="sv">${P}</b> 元</span><span>${D.max}</span>`;
    const fig=el('div');fig.style.width='100%';
-   const maxV=26000*1.066;
-   function render(){
+   const slot=el('div');slot.style.width='100%';
+   const cleanups=[];
+   function setSlot(node){clearNode(slot);if(node)slot.appendChild(node);}
+   const maxV=D.max*factor;
+   function draw(){
      $('#sv').textContent=P;
-     const total=P*1.066,int=P*0.022;
-     const wP=P/maxV*100,wI=int/maxV*100,goal=21320/maxV*100;
-     const bal=near(total,21320);
+     const total=P*factor,int=P*D.rate;
+     const wP=P/maxV*100,wI=int/maxV*100,goal=D.goal/maxV*100;
+     const bal=near(total,D.goal);
+     let msg;
+     if(bal)msg=`<span style="color:#059669">到期 ${r2(total)}，正好 ${D.goal}</span>`;
+     else if(total<D.goal)msg=`<span style="color:#D97706">到期 ${r2(total)}，还差 ${r2(D.goal-total)} 元</span>`;
+     else msg=`<span style="color:var(--red)">到期 ${r2(total)}，已经超过 ${r2(total-D.goal)} 元</span>`;
+     let segs='';
+     for(let i=0;i<D.years;i++){const cols=['#F59E0B','#FB923C','#FBBF24'];segs+=`<div class="hseg" style="width:${wI}%;background:${cols[i]}">${D.rate*100}%</div>`;}
      clearNode(fig);
      fig.innerHTML=`<div style="width:100%;position:relative">
        <div style="position:absolute;left:${goal}%;top:-6px;bottom:-6px;width:2px;background:#EF4444;z-index:2"></div>
-       <div style="position:absolute;left:${goal}%;top:-22px;transform:translateX(-50%);font-size:11px;font-weight:800;color:#EF4444;white-space:nowrap">21320</div>
-       <div class="hbar" style="margin-top:14px">
-         <div class="hseg" style="width:${wP}%;background:#3B82F6">本金 ${P}</div>
-         <div class="hseg" style="width:${wI}%;background:#F59E0B">2.2%</div>
-         <div class="hseg" style="width:${wI}%;background:#FB923C">2.2%</div>
-         <div class="hseg" style="width:${wI}%;background:#FBBF24">2.2%</div>
-       </div>
-       <div style="text-align:center;font-size:13.5px;font-weight:800;margin-top:12px;color:${bal?'#059669':'var(--sub)'}">
-         到期总额 ${r2(total)} 元 ${bal?'✓ 正好 21320':'（还差 '+r2(21320-total)+' 元）'}</div>
-       <div class="legend" style="margin-top:10px"><span><i class="dotleg" style="background:#F59E0B"></i>每段利息 = 本金的 2.2%，三段共 6.6%</span></div>
+       <div style="position:absolute;left:${goal}%;top:-22px;transform:translateX(-50%);font-size:11px;font-weight:800;color:#EF4444;white-space:nowrap">${D.goal}</div>
+       <div class="hbar" style="margin-top:14px"><div class="hseg" style="width:${wP}%;background:#3B82F6">本金 ${P}</div>${segs}</div>
+       <div style="text-align:center;font-size:13.5px;font-weight:800;margin-top:12px">${msg}</div>
      </div>`;
    }
-   function check(){
-     if(near(P*1.066,21320)){
-       showReveal('1','本金 + 3 段利息 = 21320','P + 0.066P = 21320：三段利息都以同一笔本金为基准，每段是本金的 2.2%。');
-       showReveal('2','P = 20000，20000×1.066 = 21320','代回：本金 20000，三年利息 1320，本息合计 21320。');
-       markDone();
-     }else{resetReveals();}
+   const b=el('button','btn go');b.type='button';b.textContent='我看清利息怎么算了';
+   b.onclick=()=>{
+     const tb=thinkBox('每一段利息，是按什么算出来的？',[
+       {label:'都按同一笔本金乘年利率',correct:true},
+       {label:'按到期总额算',hint:'利息段在本金右边，先有本金才生利息。'},
+       {label:'每段利息不一样、互相独立',hint:'拖动本金看，每段长度都等于本金乘同一个利率。'}
+     ]);
+     tb.onPass=()=>{
+       showReveal('1',`本金 + ${D.years} 段利息 = ${D.goal}`,
+         `P + ${D.rate*100}%×${D.years}×P = ${D.goal}，也就是 ${r2(factor)}P = ${D.goal}。`);
+       const c=el('button','btn go');c.type='button';c.textContent='我自己求本金';
+       c.onclick=()=>askP();setSlot(c);cleanups.push(()=>c.onclick=null);
+     };
+     setSlot(tb.root);cleanups.push(tb.destroy);
+   };
+   function askP(){
+     const ar=answerRow('本金是多少？',(val,fb)=>{
+       if(near(numOf(val),D.P)){
+         showReveal('2',`P = ${D.P}，${D.P}×${factor} = ${D.P*factor}`,
+           `代回：本金 ${D.P}，${D.years} 年利息 ${D.P*factor-D.P}，合计 ${D.goal}。`);
+         markDone();
+         const c=el('button','btn go');c.type='button';c.textContent='再玩一次';
+         c.onclick=()=>{resetReveals();P=D.start;rng.value=P;draw();
+           setSlot(b);};
+         setSlot(c);cleanups.push(()=>c.onclick=null);
+       }else fb.innerHTML='<span style="color:var(--red);font-weight:800">不对，回到方程再解。</span>';
+     });
+     setSlot(ar.root);cleanups.push(ar.destroy);
    }
-   rng.oninput=()=>{P=+rng.value;render();check();};
+   rng.oninput=()=>{P=+rng.value;resetReveals();draw();setSlot(b);};
    const rw=el('div','range-wrap');rw.append(cap,rng);
-   wrap.append(rw,fig);stage.appendChild(wrap);render();
-   return{destroy(){rng.oninput=null;}};
+   wrap.append(rw,fig,slot);stage.appendChild(wrap);draw();setSlot(b);
+   cleanups.push(()=>b.onclick=null);
+   return{destroy(){cleanups.forEach(f=>{try{f();}catch{}});rng.oninput=null;}};
  }
 },
 work:{
  name:'甲乙合作要几天',
- stem:'一项工程，<b>甲单独做 4 天完成 12 格</b>，剩下的甲乙一起做。<b>合做时每天甲 3 格、乙 2 格</b>。全部共 60 格。剩下的还要几天？先自己列方程。',
- build(stage){
+ stem:'一项工程，<b>甲单独做 20 天完成，乙单独做 30 天完成</b>。若甲先单独做 4 天，再由甲乙合作 x 天完成。先自己列方程，再求合作天数。',
+ drill:{stem:'一项工程，<b>甲单独做 15 天完成，乙单独做 10 天完成</b>。若甲先单独做 3 天，再由甲乙合作 x 天完成。先自己列方程，再求合作天数。'},
+ build(stage,variant){
+   const D=variant==='drill'
+     ?{adays:15,bdays:10,preDays:3,ag:4,bg:6,x:4.8,pre:12}
+     :{adays:20,bdays:30,preDays:4,ag:3,bg:2,x:9.6,pre:12};
    const wrap=el('div','stage-inner');wrap.style.width='100%';
+   const fig=el('div');fig.style.width='100%';
+   const slot=el('div');slot.style.width='100%';
+   const cleanups=[];
+   function setSlot(node){clearNode(slot);if(node)slot.appendChild(node);}
    let cells='';
-   for(let i=0;i<60;i++)cells+=`<div class="cell ${i<12?'a':''}"></div>`;
-   const tank=el('div');tank.style.width='100%';
-   tank.innerHTML=`<div class="tank">${cells}</div>
-     <div style="display:flex;justify-content:space-between;font-size:11px;font-weight:800;color:var(--sub);margin-top:6px">
-       <span>↑ 甲独做 4 天 = 12 格</span><span>剩下 48 格，两人合做 ↑</span></div>
-     <div style="margin-top:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-       <span style="font-size:12px;font-weight:800;color:var(--sub)">合做一天：</span>
-       <div class="cell b" style="position:static"></div><div class="cell b" style="position:static"></div><div class="cell b" style="position:static"></div>
-       <div class="cell c" style="position:static"></div><div class="cell c" style="position:static"></div>
-       <span style="font-size:12px;font-weight:800;color:#059669">= 5 格/天</span></div>`;
-   const eq=el('input');eq.className='eq-input';eq.placeholder='先写方程，比如 12+5x=60';
-   const fb=el('div');fb.style.minHeight='20px';fb.style.fontSize='12.5px';
-   const btn=el('button','btn go');btn.textContent='核对我的方程';
-   function parse(expr){
-     if(!expr.includes('='))return{ok:false};
-     const parts=expr.split('=');
-     if(parts.length!==2)return{ok:false};
-     const mk=s=>{
-       let clean=s.replace(/[^0-9x+\-*/(). ]/g,'');
-       clean=clean.replace(/(\d)(?=[x(])/g,'$1*').replace(/\)(?=[x(\d])/g,')*').replace(/x(?=[\d(])/g,'x*');
-       try{const fn=Function('x','return ('+clean+')');fn(1);return fn;}catch(e){return null;}
-     };
-     const fl=mk(parts[0]),fr=mk(parts[1]);
-     if(!fl||!fr)return{ok:false};
-     if(!near(fl(9.6),fr(9.6)))return{ok:false};
-     if(near(fl(2),fr(2))&&near(fl(0),fr(0)))return{identity:true};
-     return{ok:true};
+   for(let i=0;i<60;i++)cells+=`<div class="cell ${i<D.pre?'a':''}"></div>`;
+   function baseFig(){
+     clearNode(fig);
+     fig.innerHTML=`<div style="width:100%">
+       <div class="tank">${cells}</div>
+       <div style="display:flex;justify-content:space-between;font-size:11px;font-weight:800;color:var(--sub);margin-top:6px;gap:8px;flex-wrap:wrap">
+         <span>↑ 甲先做 ${D.preDays} 天 = ${D.pre} 格</span><span>剩下 ${60-D.pre} 格，两人合作</span></div>
+     </div>`;
    }
-   btn.onclick=()=>{
-     const r=parse(eq.value);
-     if(r.ok){
-       showReveal('1','你列的方程对：合做部分 = 60−12 = 48 格','合做每天 5 格，所以 5x = 48，你写的式子和它等价。');
-       showReveal('2','x = 9.6 天，12+5×9.6 = 60','代回：合做 9.6 天完成 48 格，加甲独做 12 格，正好 60。');
-       markDone();fb.textContent='';
-     }else if(r.identity){
-       fb.innerHTML='<span style="color:#EF4444;font-weight:800">这个式子两边永远相等，没把 x 约束住，重新写一个能解出天数的方程。</span>';
-     }else{
-       fb.innerHTML='<span style="color:#EF4444;font-weight:800">合做那段：甲 3 格 + 乙 2 格 = 每天 5 格。方程里有没有乙的 2 格？</span>';
-     }
-   };
-   wrap.append(tank,eq,fb,btn);stage.appendChild(wrap);
-   return{destroy(){btn.onclick=null;}};
+   function step1(){
+     const tb=thinkBox(`整项 60 格，甲单独 ${D.adays} 天做完。甲每天做几格？`,[
+       {label:`${D.ag} 格/天`,correct:true},
+       {label:`${D.bg} 格/天`,hint:'60 格除以甲单独的天数，再算一次。'},
+       {label:`${D.ag+D.bg} 格/天`,hint:'这是两人加起来，不是甲一个人。'}
+     ]);
+     tb.onPass=()=>{step2();};
+     setSlot(tb.root);cleanups.push(tb.destroy);
+   }
+   function step2(){
+     const tb=thinkBox(`乙单独 ${D.bdays} 天做完 60 格。乙每天做几格？`,[
+       {label:`${D.bg} 格/天`,correct:true},
+       {label:`${D.ag} 格/天`,hint:'60 除以乙单独的天数。'},
+       {label:`${D.ag+D.bg} 格/天`,hint:'这是两人合起来的速度。'}
+     ]);
+     tb.onPass=()=>{
+       clearNode(fig);
+       let c2='';
+       for(let i=0;i<60;i++)c2+=`<div class="cell ${i<D.pre?'a':(i<D.pre+D.ag+D.bg?'c':'')}"></div>`;
+       fig.innerHTML=`<div style="width:100%"><div class="tank">${c2}</div>
+         <div style="font-size:12.5px;font-weight:800;color:var(--sub);margin-top:8px;text-align:center">
+           合作一天：甲 ${D.ag} + 乙 ${D.bg} = ${D.ag+D.bg} 格/天</div></div>`;
+       askEquation();
+     };
+     setSlot(tb.root);cleanups.push(tb.destroy);
+   }
+   function askEquation(){
+     const root=el('div','answer-row');
+     const inp=el('input');inp.className='eq-input';inp.type='text';inp.placeholder='列方程，比如 12+5x=60（全角符号也可以）';
+     const fb=el('div','input-fb');
+     const b=el('button','btn go');b.type='button';b.textContent='核对我的方程';
+     b.onclick=()=>{
+       resetReveals();
+       const r=parseLinear(inp.value,D.x);
+       if(r.ok){
+         showReveal('1','甲先做的 + 合作段 = 整项 60 格',
+           `${D.pre} + ${D.ag+D.bg}x = 60，和你写的方程等价。`);
+         const c=el('button','btn go');c.type='button';c.textContent='我解出天数了';
+         c.onclick=()=>askDays();setSlot(c);cleanups.push(()=>c.onclick=null);
+       }else fb.innerHTML=`<span style="color:var(--red);font-weight:800">${r.err}</span>`;
+     };
+     inp.addEventListener('keydown',e=>{if(e.key==='Enter')b.click();});
+     root.append(inp,fb,b);
+     setSlot(root);cleanups.push(()=>{b.onclick=null;});
+   }
+   function askDays(){
+     const ar=answerRow('合作天数 x 是多少？',(val,fb)=>{
+       if(near(numOf(val),D.x)){
+         showReveal('2',`x = ${D.x}，${D.pre}+${D.ag+D.bg}×${D.x} = 60`,
+           `代回：合作 ${D.x} 天完成 ${60-D.pre} 格，加甲先做的 ${D.pre}，正好 60。`);
+         markDone();
+         const c=el('button','btn go');c.type='button';c.textContent='再玩一次';
+         c.onclick=()=>{resetReveals();baseFig();step1();};
+         setSlot(c);cleanups.push(()=>c.onclick=null);
+       }else fb.innerHTML='<span style="color:var(--red);font-weight:800">天数不对，回到方程再解。</span>';
+     });
+     setSlot(ar.root);cleanups.push(ar.destroy);
+   }
+   wrap.append(fig,slot);stage.appendChild(wrap);baseFig();step1();
+   return{destroy(){cleanups.forEach(f=>{try{f();}catch{}});}};
  }
 },
 cart:{
  name:'电瓶车人数与票款',
- stem:'旅行团在景区坐电瓶车，<b>每人至少乘一程</b>。单程票每张 20 元，往返票每张 30 元（比两张单程便宜 10 元）。把同一人的去程、回程记录配成一对，就知道多少人、多少钱。',
- build(stage){
-   let paired=0;
+ stem:'旅行团坐电瓶车，每人至少乘一程。<b>单程票每张 20 元，往返票每张 30 元（比两张单程省 10 元）</b>。这次<b>去程记录 15 条、回程记录 10 条，总票款 410 元</b>。多少人买了往返、多少人只坐一程？一共多少人？',
+ drill:{stem:'旅行团坐电瓶车，每人至少乘一程。<b>单程票每张 10 元，往返票每张 15 元（比两张单程省 5 元）</b>。这次<b>去程记录 11 条、回程记录 7 条，总票款 145 元</b>。多少人买了往返、一共多少人？'},
+ build(stage,variant){
+   const D=variant==='drill'
+     ?{single:10,rt:15,save:5,go:11,back:7,goal:145,all:180,pairs:7,people:11}
+     :{single:20,rt:30,save:10,go:15,back:10,goal:410,all:500,pairs:9,people:16};
+   let p=0;
    const wrap=el('div','stage-inner');wrap.style.width='100%';
    const fig=el('div');fig.style.width='100%';
-   const btn=el('button','btn go');
-   const money=el('div');money.style.fontSize='13.5px';money.style.fontWeight='800';money.style.textAlign='center';money.style.marginTop='10px';
-   function render(){
-     const goLeft=16-paired,backLeft=9-paired;
-     const rt=(c,bg,txt)=>`<div style="width:30px;height:30px;border-radius:7px;background:${bg};display:grid;place-items:center;font-size:10px;font-weight:800;color:#fff">${c}</div>`;
+   const slot=el('div');slot.style.width='100%';
+   const cleanups=[];
+   function setSlot(node){clearNode(slot);if(node)slot.appendChild(node);}
+   const rt=(c,bg)=>`<div style="width:30px;height:30px;border-radius:7px;background:${bg};display:grid;place-items:center;font-size:10px;font-weight:800;color:#fff">${c}</div>`;
+   function fee(){return D.all-D.save*p;}
+   function draw(){
+     const goLeft=D.go-p,backLeft=D.back-p;
      let pairedHtml='';
-     for(let i=0;i<paired;i++)pairedHtml+=`<div style="display:flex;align-items:center;gap:3px;border:2px solid #10B981;border-radius:9px;padding:3px 6px;background:#ECFDF5">
-       ${rt('去','#3B82F6','')}${rt('回','#F59E0B','')}<span style="font-size:10.5px;font-weight:800;color:#059669">往返30</span></div>`;
+     for(let i=0;i<p;i++)pairedHtml+=`<div style="display:flex;align-items:center;gap:3px;border:2px solid #10B981;border-radius:9px;padding:3px 6px;background:#ECFDF5">
+       ${rt('去','#3B82F6')}${rt('回','#F59E0B')}<span style="font-size:10.5px;font-weight:800;color:#059669">往返${D.rt}</span></div>`;
      let goHtml='',backHtml='';
      for(let i=0;i<goLeft;i++)goHtml+=rt('去','#3B82F6');
      for(let i=0;i<backLeft;i++)backHtml+=rt('回','#F59E0B');
      clearNode(fig);
      fig.innerHTML=`<div style="display:flex;flex-direction:column;gap:12px;width:100%">
-       <div><div style="font-size:11.5px;font-weight:800;color:#059669;margin-bottom:6px">已配对（往返，每人 2 条记录）</div>
-         <div style="display:flex;gap:7px;flex-wrap:wrap;min-height:36px">${pairedHtml||'<span style="font-size:12px;color:var(--sub)">还没配对</span>'}</div></div>
-       <div><div style="font-size:11.5px;font-weight:800;color:var(--blue);margin-bottom:6px">未配对的去程（单程 20 元）· ${goLeft} 条</div>
-         <div style="display:flex;gap:6px;flex-wrap:wrap">${goHtml}</div></div>
-       <div><div style="font-size:11.5px;font-weight:800;color:#D97706;margin-bottom:6px">等待配对的回程 · ${backLeft} 条</div>
-         <div style="display:flex;gap:6px;flex-wrap:wrap">${backHtml||'<span style="font-size:12px;color:var(--sub)">都配完了</span>'}</div></div>
+       <div><div style="font-size:11.5px;font-weight:800;color:#059669;margin-bottom:6px">已配成往返 · ${p} 对</div>
+         <div style="display:flex;gap:7px;flex-wrap:wrap;min-height:34px">${pairedHtml||'<span style="font-size:12px;color:var(--sub)">还没配对</span>'}</div></div>
+       <div><div style="font-size:11.5px;font-weight:800;color:var(--blue);margin-bottom:6px">未配对去程 · ${goLeft} 条</div>
+         <div style="display:flex;gap:6px;flex-wrap:wrap">${goHtml||'<span style="font-size:12px;color:var(--sub)">没有了</span>'}</div></div>
+       <div><div style="font-size:11.5px;font-weight:800;color:#D97706;margin-bottom:6px">未配对回程 · ${backLeft} 条</div>
+         <div style="display:flex;gap:6px;flex-wrap:wrap">${backHtml||'<span style="font-size:12px;color:var(--sub)">没有了</span>'}</div></div>
+       <div style="font-size:14px;font-weight:800;text-align:center;color:${near(fee(),D.goal)?'#059669':'var(--ink)'}">
+         当前票款 ${fee()} 元（全单程 ${D.all}，每配一对少 ${D.save}）</div>
      </div>`;
-     const fee=30*paired+20*goLeft;
-     money.textContent=paired===9?`配完：9 往返 + 7 单程 = 16 人，票款 410 元`:`当前票款 ${fee} 元（全按单程本应 500 元）`;
-     btn.textContent=paired<9?'把同一人的去程、回程配成一对':'再玩一次';
    }
-   btn.onclick=()=>{
-     if(paired<9){paired++;render();}
-     if(paired===9){
-       showReveal('1','配成一对 = 同一个人：两条记录合为 1 个往返','9 对往返（每人去+回），剩下 7 条去程是单程，共 9+7=16 人。');
-       showReveal('2','30×9 + 20×7 = 410 元','全按单程是 25×20=500；9 人各省 10 元，500−90=410。');
-       markDone();
-     }else if(paired===0){resetReveals();}
-   };
-   const dbl=el('button','btn ghost');dbl.textContent='一次配完';
-   dbl.onclick=()=>{paired=9;render();btn.click();};
-   const row=el('div');row.style.display='flex';row.style.gap='10px';row.append(btn,dbl);
-   wrap.append(fig,money,row);stage.appendChild(wrap);render();
-   return{destroy(){btn.onclick=null;dbl.onclick=null;}};
+   function prepPair(){
+     const b=el('button','btn go');b.type='button';b.textContent='把同一人的去程、回程配成一对';
+     b.onclick=()=>{
+       p++;draw();
+       if(near(fee(),D.goal)){afterMatch();}
+       else prepPair();
+     };
+     setSlot(b);cleanups.push(()=>b.onclick=null);
+   }
+   function afterMatch(){
+     const tb=thinkBox('票款正好对上。为什么配一对会少钱？',[
+       {label:`往返 ${D.rt} 比两张单程 ${D.single*2} 少 ${D.save}`,correct:true},
+       {label:'配对后票款变多',hint:'看票款数字，配对时是变大还是变小。'},
+       {label:'票价本身打折，和配对无关',hint:'差额正好等于两张单程减一张往返。'}
+     ]);
+     tb.onPass=()=>{
+       showReveal('1',`全单程 ${D.all} − ${D.save}×${D.pairs} = ${D.goal}`,
+         `配 ${D.pairs} 对往返，票款正好 ${D.goal}。`);
+       const c=el('button','btn go');c.type='button';c.textContent='我自己数人数';
+       c.onclick=()=>askPeople();setSlot(c);cleanups.push(()=>c.onclick=null);
+     };
+     setSlot(tb.root);cleanups.push(tb.destroy);
+   }
+   function askPeople(){
+     const ar=answerRow('一共多少人？（每人至少一程）',(val,fb)=>{
+       if(near(numOf(val),D.people)){
+         showReveal('2',`${D.pairs} 往返 + 未配对 ${D.all-D.pairs*2} 条单程 = ${D.people} 人`,
+           variant==='drill'?'代回：每人对应一个往返或一条单程。'
+           :`代回：${D.pairs} 人往返、${D.go-p} 人只去、${D.back-p} 人只回，共 ${D.people}。`);
+         markDone();
+         const c=el('button','btn go');c.type='button';c.textContent='再玩一次';
+         c.onclick=()=>{resetReveals();p=0;draw();prepPair();};
+         setSlot(c);cleanups.push(()=>c.onclick=null);
+       }else fb.innerHTML='<span style="color:var(--red);font-weight:800">不对，往返对算1人，每条单程算1人。</span>';
+     });
+     setSlot(ar.root);cleanups.push(ar.destroy);
+   }
+   wrap.append(fig,slot);stage.appendChild(wrap);draw();prepPair();
+   return{destroy(){cleanups.forEach(f=>{try{f();}catch{}});}};
  }
 },
 chase:{
  name:'良马追驽马',
- stem:'<b>驽马先出发 12 天，每天走 150 里</b>；<b>良马每天走 240 里</b>，随后出发去追。推动两匹马共用的时间尺，看它们什么时候并排。',
- build(stage){
-   let d=0;
+ stem:'<b>驽马先出发 12 天，每天走 150 里</b>；<b>良马每天走 240 里</b>，随后出发去追。推动时间尺，看它们什么时候并排。',
+ drill:{stem:'两人从一条<b>长 75 米的道路两端同时相向出发</b>，一个每秒走 6 米、另一个每秒走 4 米。推动时间尺，看他们几秒相遇。'},
+ build(stage,variant){
+   const meet=variant==='drill';
+   const D=meet?{v1:6,v2:4,D:75,x:7.5,max:12,step:.5}
+     :{slow:150,good:240,head:12,x:20,max:24,step:1};
+   let t=0;
    const wrap=el('div','stage-inner');wrap.style.width='100%';
-   const rng=el('input');rng.type='range';rng.min=0;rng.max=24;rng.step=1;rng.value=0;
-   const cap=el('div','range-cap');cap.innerHTML='<span>出发</span><span class="range-val" style="font-size:18px">良马走了 <b id="dv">0</b> 天</span><span>24 天</span>';
+   const rng=el('input');rng.type='range';rng.min=0;rng.max=D.max;rng.step=D.step;rng.value=0;
+   const cap=el('div','range-cap');
+   cap.innerHTML=`<span>起点</span><span class="range-val" style="font-size:18px">经过 <b id="dv">0</b> ${meet?'秒':'天'}</span><span>${D.max}</span>`;
    const runway=el('div');runway.className='runway';
    const info=el('div');info.style.fontSize='13px';info.style.fontWeight='800';info.style.textAlign='center';
-   const stepBtn=el('button','btn go');stepBtn.textContent='前进一天';
-   const max=6000;
-   const pos=mile=>4+(mile/max)*92;
+   const slot=el('div');slot.style.width='100%';
+   const cleanups=[];
+   function setSlot(node){clearNode(slot);if(node)slot.appendChild(node);}
    function horse(left,color,ch,label,top){
      return `<div class="runner" style="left:${left}%;top:${top}px;transform:translateX(-50%)">
        <div style="width:36px;height:36px;border-radius:50%;background:${color};display:grid;place-items:center;color:#fff;font-weight:800;font-size:15px;box-shadow:0 3px 8px rgba(0,0,0,.18)">${ch}</div>
        <div class="rname" style="color:${color}">${label}</div></div>`;
    }
-   function render(){
-     const good=240*d,slow=150*(d+12),gap=slow-good;
-     const meet=near(gap,0),lg=pos(good),ls=pos(slow);
-     $('#dv').textContent=d;
-     const line=meet?`<div style="position:absolute;left:${lg}%;top:10px;bottom:8px;width:2px;background:#10B981;transform:translateX(-50%);opacity:.55"></div>`:'';
-     runway.innerHTML=line
-       +horse(lg,'#3B82F6','良',good+' 里',meet?16:24)
-       +horse(ls,'#F59E0B','驽',slow+' 里',meet?84:24);
-     info.innerHTML=near(gap,0)?'<span style="color:#059669">并排了！良马 20 天、驽马 32 天，都在 4800 里处</span>':
-       `驽马还领先 <b style="color:#D97706">${r2(gap)}</b> 里（每天差距缩短 90 里）`;
-     stepBtn.textContent=d<24?'前进一天':'回到起点';
+   function draw(){
+     $('#dv').textContent=t;
+     let html,l1,l2,gap,equal;
+     if(meet){
+       const p1=D.v1*t,p2=D.v2*t;
+       const g=v=>4+(v/D.D)*92;
+       l1=g(p1);l2=100-g(p2);
+       equal=near(p1+p2,D.D);
+       const line=equal?`<div style="position:absolute;left:${l1}%;top:10px;bottom:8px;width:2px;background:#10B981;transform:translateX(-50%);opacity:.55"></div>`:'';
+       html=line+horse(l1,'#3B82F6','甲',p1+' 米',equal?16:24)+horse(l2,'#F59E0B','乙',p2+' 米',equal?84:24);
+       if(equal)info.innerHTML='<span style="color:#059669">相遇了！两人走过的加起来 45+30=75 米</span>';
+       else if(p1+p2<D.D)info.innerHTML=`还没相遇，两人一共走了 ${r2(p1+p2)} 米，离 75 还差 ${r2(D.D-p1-p2)}`;
+       else info.innerHTML=`已经错开，两人走过的和 ${r2(p1+p2)} 超过 75`;
+     }else{
+       const good=D.good*t,slow=D.slow*(t+D.head);gap=slow-good;
+       const g=v=>4+(v/6000)*92;
+       l1=g(good);l2=g(slow);
+       equal=near(gap,0);
+       const line=equal?`<div style="position:absolute;left:${l1}%;top:10px;bottom:8px;width:2px;background:#10B981;transform:translateX(-50%);opacity:.55"></div>`:'';
+       html=line+horse(l1,'#3B82F6','良',good+' 里',equal?16:24)+horse(l2,'#F59E0B','驽',slow+' 里',equal?84:24);
+       if(equal)info.innerHTML='<span style="color:#059669">并排了！良马 20 天、驽马 32 天，都在 4800 里</span>';
+       else if(gap>0)info.innerHTML=`驽马还领先 <b style="color:#D97706">${r2(gap)}</b> 里（每天差距缩 90）`;
+       else info.innerHTML=`<span style="color:var(--red)">良马已经反超 ${r2(-gap)} 里</span>`;
+     }
+     runway.innerHTML=html;
    }
-   function check(){
-     if(near(240*d,150*(d+12))){
-       showReveal('1','并排时路程相等：240x = 150(x+12)','也可以看成 90x = 1800：初始领先 1800，每天缩 90。');
-       showReveal('2','x = 20，240×20 = 150×32 = 4800','代回：良马 20 天、驽马含先跑共 32 天，位置相同。');
-       markDone();
-     }else{resetReveals();}
+   function firstThink(){
+     const q=meet?'两人相向走，相遇时路程怎么算？':'驽马早出发 12 天，良马走 t 天时驽马走几天？';
+     const opts=meet?[
+       {label:'两段路程加起来 = 总距离 75',correct:true},
+       {label:'两人路程相等',hint:'两人速度不同，相遇时走的米数不一样；看他们位置和各自起点。'},
+       {label:'快的那个人走完全程',hint:'相遇在中间某处，两人都只走了一部分。'}
+     ]:[
+       {label:'驽马走了 t+12 天',correct:true},
+       {label:'驽马也走了 t 天',hint:'驽马先出发，钟表上它多用了 12 天。'},
+       {label:'驽马走了 12 天',hint:'12 天是提前量，之后它还在继续走。'}
+     ];
+     const tb=thinkBox(q,opts);
+     tb.onPass=()=>{prepMove();};
+     setSlot(tb.root);cleanups.push(tb.destroy);
    }
-   rng.oninput=()=>{d=+rng.value;render();check();};
-   stepBtn.onclick=()=>{d=d<24?d+1:0;rng.value=d;render();check();};
+   let moved=false;
+   function prepMove(){
+     const b=el('button','btn go');b.type='button';
+     b.textContent=meet?'我来推时间尺看相遇':'我来推时间尺看并排';
+     b.onclick=()=>{moved=true;setSlot(null);};
+     setSlot(b);cleanups.push(()=>b.onclick=null);
+   }
+   function checkPoint(){
+     const q=meet?'现在两人是什么状态？':'现在两匹马是什么状态？';
+     const opts=meet?[
+       {label:'正好相遇',correct:near(D.v1*t+D.v2*t,D.D),hint:'看绿色提示。'},
+       {label:'还没相遇',correct:D.v1*t+D.v2*t<D.D,hint:'两人之间还有空隙吗？'},
+       {label:'已经错开',correct:D.v1*t+D.v2*t>D.D,hint:'两人走过头了吗？'}
+     ]:[
+       {label:'正好并排',correct:near(D.good*t,D.slow*(t+D.head)),hint:'看绿色提示。'},
+       {label:'驽马还在前面',correct:D.slow*(t+D.head)>D.good*t,hint:'谁的位置更靠右？'},
+       {label:'良马已经反超',correct:D.good*t>D.slow*(t+D.head),hint:'良马跑到右边了吗？'}
+     ];
+     const tb=thinkBox(q,opts);
+     tb.onPass=()=>{
+       const done=meet?near(D.v1*t+D.v2*t,D.D):near(D.good*t,D.slow*(t+D.head));
+       if(done){
+         showReveal('1',meet?'6t + 4t = 75':'240t = 150(t+12)',
+           meet?'两段路程之和等于总距离。':'并排时两人路程相等；也可写成 90t=1800。');
+         const c=el('button','btn go');c.type='button';c.textContent='我自己算时间';
+         c.onclick=()=>askX();setSlot(c);cleanups.push(()=>c.onclick=null);
+       }else prepMove();
+     };
+     setSlot(tb.root);cleanups.push(tb.destroy);
+   }
+   function askX(){
+     const ar=answerRow(meet?'几秒相遇？':'良马几天追上？',(val,fb)=>{
+       if(near(numOf(val),D.x)){
+         showReveal('2',meet?'t = 7.5，6×7.5+4×7.5=75':'t = 20，240×20=150×32=4800',
+           meet?'代回：两人在同一位置，路程和为全程。':'代回：良马20天、驽马含先跑共32天，位置相同。');
+         markDone();
+         const c=el('button','btn go');c.type='button';c.textContent='再玩一次';
+         c.onclick=()=>{resetReveals();t=0;rng.value=0;draw();firstThink();};
+         setSlot(c);cleanups.push(()=>c.onclick=null);
+       }else fb.innerHTML='<span style="color:var(--red);font-weight:800">不对，回到方程再解。</span>';
+     });
+     setSlot(ar.root);cleanups.push(ar.destroy);
+   }
+   rng.oninput=()=>{t=+rng.value;draw();if(moved)checkPoint();};
    const rw=el('div','range-wrap');rw.append(cap,rng);
-   wrap.append(rw,runway,info,stepBtn);stage.appendChild(wrap);render();
-   return{destroy(){rng.oninput=null;stepBtn.onclick=null;}};
+   wrap.append(rw,runway,info,slot);stage.appendChild(wrap);draw();firstThink();
+   return{destroy(){cleanups.forEach(f=>{try{f();}catch{}});rng.oninput=null;}};
  }
 },
 match:{
  name:'车间配套最多几套',
- stem:'一个成品要 <b>4 个甲零件、3 个乙零件</b>配成一套。甲组每人每天做 6 个甲，乙组每人每天做 8 个乙，<b>两组共 50 人</b>。调工人换组，看怎么安排能做最多套。',
- build(stage){
-   let ja=30;
+ stem:'一个成品要 <b>4 个甲零件、3 个乙零件</b>配成一套。甲组每人每天做 6 个甲，乙组每人每天做 8 个乙，<b>两组共 50 人</b>。调工人换组，看怎么安排做最多套。',
+ drill:{stem:'一个成品要 <b>3 个甲零件、2 个乙零件</b>配成一套。甲组每人每天做 5 个甲，乙组每人每天做 4 个乙，<b>两组共 22 人</b>。调工人换组，看怎么安排做最多套。'},
+ build(stage,variant){
+   const D=variant==='drill'
+     ?{needA:3,needB:2,rateA:5,rateB:4,total:22,ja:12,best:20,min:8,max:16,start:10}
+     :{needA:4,needB:3,rateA:6,rateB:8,total:50,ja:32,best:48,min:25,max:38,start:30};
+   let ja=D.start;
    const wrap=el('div','stage-inner');wrap.style.width='100%';
-   const rng=el('input');rng.type='range';rng.min=25;rng.max=38;rng.step=1;rng.value=ja;
-   const cap=el('div','range-cap');cap.innerHTML='<span>25 人</span><span class="range-val" style="font-size:18px">甲组 <b id="mv">30</b> 人 · 乙组 <b id="mv2">20</b> 人</span><span>38 人</span>';
    const fig=el('div');fig.style.width='100%';
-   const btn=el('button','btn go');
-   function render(){
-     const jb=50-ja;
-     const aSets=Math.floor(6*ja/4),bSets=Math.floor(8*jb/3);
+   const slot=el('div');slot.style.width='100%';
+   const cleanups=[];
+   function setSlot(node){clearNode(slot);if(node)slot.appendChild(node);}
+   function chip(kind,empty){
+     if(empty)return `<span class="slot" style="width:30px;height:30px"></span>`;
+     return `<span class="slot fill ${kind==='A'?'ja':'jb'}" style="width:30px;height:30px">${kind}</span>`;
+   }
+   function draw(){
+     const jb=D.total-ja;
+     const aSets=Math.floor(D.rateA*ja/D.needA),bSets=Math.floor(D.rateB*jb/D.needB);
      const sets=Math.min(aSets,bSets);
-     const aScrap=6*ja-4*sets,bScrap=8*jb-3*sets;
      const shortA=aSets<bSets,shortB=bSets<aSets;
-     $('#mv').textContent=ja;$('#mv2').textContent=jb;
-     let traySlots='';
-     for(let i=0;i<4;i++)traySlots+=`<div class="slot fill ja" style="width:32px;height:32px">甲</div>`;
-     for(let i=0;i<3;i++)traySlots+=`<div class="slot fill jb" style="width:32px;height:32px">乙</div>`;
+     let doneSetHtml='',nextSetHtml='';
+     for(let i=0;i<D.needA;i++)doneSetHtml+=chip('A',false);
+     for(let i=0;i<D.needB;i++)doneSetHtml+=chip('B',false);
+     for(let i=0;i<D.needA;i++)nextSetHtml+=chip('A',shortA);
+     for(let i=0;i<D.needB;i++)nextSetHtml+=chip('B',shortB);
      clearNode(fig);
      fig.innerHTML=`<div style="display:flex;flex-direction:column;gap:14px;width:100%;align-items:center">
-       <div style="font-size:12px;font-weight:800;color:var(--sub)">一套成品的结构</div>
-       <div class="tray-row">${traySlots}</div>
-       <div style="display:flex;gap:26px;flex-wrap:wrap;justify-content:center;font-size:13px;font-weight:800">
-         <span style="color:${shortA?'#DC2626':'var(--blue)'}">甲能配 ${aSets} 套${shortA?'（短缺）':''}</span>
-         <span style="color:${shortB?'#DC2626':'var(--orange)'}">乙能配 ${bSets} 套${shortB?'（短缺）':''}</span></div>
-       <div style="font-size:30px;font-weight:900;color:${aScrap+bScrap===0?'#059669':'var(--ink)'}">完整 ${sets} 套</div>
-       <div class="scrap">余料：甲剩 ${aScrap} 个、乙剩 ${bScrap} 个${aScrap+bScrap===0?' · 刚好用完，无余料':''}</div>
+       <div style="font-size:12px;font-weight:800;color:var(--sub)">一套成品（已完成的代表）</div>
+       <div class="tray-row">${doneSetHtml}</div>
+       <div style="font-size:12px;font-weight:800;color:var(--sub)">正在配的下一套（空槽就是缺的零件）</div>
+       <div class="tray-row">${nextSetHtml}</div>
+       <div style="display:flex;gap:20px;flex-wrap:wrap;justify-content:center;font-size:13px;font-weight:800">
+         <span style="color:${shortA?'#DC2626':'var(--blue)'}">甲能配 ${aSets} 套${shortA?'（甲短缺）':''}</span>
+         <span style="color:${shortB?'#DC2626':'var(--orange)'}">乙能配 ${bSets} 套${shortB?'（乙短缺）':''}</span></div>
+       <div style="font-size:28px;font-weight:900;color:${!shortA&&!shortB?'#059669':'var(--ink)'}">完整 ${sets} 套</div>
      </div>`;
-     btn.textContent=ja>25?'调一名工人换组（甲组减1）':'调回甲组';
    }
-   function check(){
-     if(ja===32){
-       showReveal('1','6×32/4 = 48，8×18/3 = 48，两边相等','短缺的一方决定完整套数；两边恰好相等时没有余料，套数最多。');
-       showReveal('2','32 人做甲、18 人做乙，最多 48 套','对比：甲组 31 人 46 套、33 人 45 套，都比 48 少。');
-       markDone();
-     }else{resetReveals();}
+   function controls(){
+     const row=el('div','act-row');
+     const minus=el('button','btn');minus.type='button';minus.textContent='甲组 −1（调去乙组）';
+     const plus=el('button','btn');plus.type='button';plus.textContent='甲组 +1（调回甲组）';
+     minus.onclick=()=>{if(ja>D.min){ja--;afterChange();}};
+     plus.onclick=()=>{if(ja<D.max){ja++;afterChange();}};
+     row.append(minus,plus);setSlot(row);
+     cleanups.push(()=>{minus.onclick=null;plus.onclick=null;});
    }
-   rng.oninput=()=>{ja=+rng.value;render();check();};
-   btn.onclick=()=>{ja=ja>25?ja-1:32;rng.value=ja;render();check();};
-   const rw=el('div','range-wrap');rw.append(cap,rng);
-   wrap.append(rw,fig,btn);stage.appendChild(wrap);render();
-   return{destroy(){rng.oninput=null;btn.onclick=null;}};
+   function afterChange(){
+     resetReveals();draw();
+     const jb=D.total-ja;
+     const aSets=Math.floor(D.rateA*ja/D.needA),bSets=Math.floor(D.rateB*jb/D.needB);
+     if(near(aSets,bSets)){
+       const tb=thinkBox('两边能配的套数相等了，为什么这时最多？',[
+         {label:'没有短缺、没有余料，两套数都用满',correct:true},
+         {label:'甲组人越多越好',hint:'再调一人试试，会变成另一组短缺。'},
+         {label:'凭感觉',hint:'看甲、乙各自能配几套，相等时谁都不浪费。'}
+       ]);
+       tb.onPass=()=>{
+         showReveal('1',`${D.rateA}×${ja}/${D.needA} = ${D.rateB}×${D.total-ja}/${D.needB}`,
+           '短缺方决定完整套数；两边相等时没有余料，套数最多。');
+         const c=el('button','btn go');c.type='button';c.textContent='我自己算最多套数';
+         c.onclick=()=>askSets();setSlot(c);cleanups.push(()=>c.onclick=null);
+       };
+       setSlot(tb.root);cleanups.push(tb.destroy);
+     }else controls();
+   }
+   function askSets(){
+     const ar=answerRow('最多能做多少套？',(val,fb)=>{
+       if(near(numOf(val),D.best)){
+         showReveal('2',`${ja} 人做甲、${D.total-ja} 人做乙，最多 ${D.best} 套`,
+           '代回：两边产出都正好凑成完整套，余料为0。');
+         markDone();
+         const c=el('button','btn go');c.type='button';c.textContent='再玩一次';
+         c.onclick=()=>{resetReveals();ja=D.start;draw();controls();};
+         setSlot(c);cleanups.push(()=>c.onclick=null);
+       }else fb.innerHTML='<span style="color:var(--red);font-weight:800">不对，看甲、乙各自能配几套取小的。</span>';
+     });
+     setSlot(ar.root);cleanups.push(ar.destroy);
+   }
+   wrap.append(fig,slot);stage.appendChild(wrap);draw();controls();
+   return{destroy(){cleanups.forEach(f=>{try{f();}catch{}});}};
  }
 },
 milk:{
  name:'牛奶加工怎么选',
- stem:'收了 <b>9 吨牛奶，要在 4 天内加工完</b>。做奶片每天处理 1 吨，做酸奶每天处理 3 吨。移动时间分界，找到刚好处理完 9 吨的安排，再比两本账。',
- build(stage){
-   let t=2;
+ stem:'现有鲜奶 <b>9 吨，要在 4 天内全部销售或加工完</b>。直卖鲜奶每吨赚 500 元，做酸奶每吨赚 1200 元（每天 3 吨），做奶片每吨赚 2000 元（每天 1 吨），两种加工不能同时。方案一：尽量多做奶片、其余直卖；方案二：部分奶片、部分酸奶，恰好用满 4 天。选哪个？',
+ drill:{stem:'现有鲜奶 <b>8 吨，要在 4 天内全部销售或加工完</b>。直卖每吨 500、酸奶每吨 1200（每天 3 吨）、奶片每吨 2000（每天 1 吨），不能同时加工。方案一：尽量多奶片、其余直卖；方案二：部分奶片、部分酸奶，恰好用满 4 天。选哪个？'},
+ build(stage,variant){
+   const D=variant==='drill'
+     ?{total:8,x:2,p1:10000,p2:11200,start:3}
+     :{total:9,x:1.5,p1:10500,p2:12000,start:2};
+   let t=D.start;
    const wrap=el('div','stage-inner');wrap.style.width='100%';
    const rng=el('input');rng.type='range';rng.min=0.5;rng.max=3.5;rng.step=0.5;rng.value=t;
-   const cap=el('div','range-cap');cap.innerHTML='<span>0.5 天</span><span class="range-val" style="font-size:18px">奶片做 <b id="tv">2</b> 天</span><span>3.5 天</span>';
+   const cap=el('div','range-cap');
+   cap.innerHTML=`<span>0.5 天</span><span class="range-val" style="font-size:18px">奶片做 <b id="tv">${t}</b> 天</span><span>3.5 天</span>`;
    const fig=el('div');fig.style.width='100%';
-   function render(){
-     const chipT=t,yogDays=4-t,yogT=3*yogDays,total=chipT+yogT;
-     const ok=near(total,9);
+   const slot=el('div');slot.style.width='100%';
+   const cleanups=[];
+   function setSlot(node){clearNode(slot);if(node)slot.appendChild(node);}
+   function calc(){
+     const yogDays=4-t,chipT=t,yogT=3*yogDays,proc=chipT+yogT;
+     return{yogDays,chipT,yogT,proc,ok:near(proc,D.total)};
+   }
+   function draw(){
      $('#tv').textContent=r2(t);
-     const wChip=t/4*100,wYog=yogDays/4*100;
+     const c=calc();
+     const wChip=t/4*100,wYog=c.yogDays/4*100;
+     let state;
+     if(c.ok)state=`<span style="color:#059669">奶片 ${r2(c.chipT)} + 酸奶 ${r2(c.yogT)} = ${r2(c.proc)} 吨，正好 ${D.total}</span>`;
+     else if(c.proc<D.total)state=`<span style="color:#D97706">只能处理 ${r2(c.proc)} 吨，加工不完 ${D.total} 吨，还差 ${r2(D.total-c.proc)}</span>`;
+     else state=`<span style="color:var(--red)">能处理 ${r2(c.proc)} 吨，超过鲜奶 ${r2(c.proc-D.total)} 吨，多出的产能用不上</span>`;
      clearNode(fig);
      fig.innerHTML=`<div style="display:flex;flex-direction:column;gap:14px;width:100%">
        <div><div style="font-size:12px;font-weight:800;color:var(--sub);margin-bottom:6px">4 天时间分界</div>
          <div class="hbar"><div class="hseg" style="width:${wChip}%;background:#3B82F6">奶片 ${r2(t)} 天</div>
-         <div class="hseg" style="width:${wYog}%;background:#F59E0B">酸奶 ${r2(yogDays)} 天</div></div></div>
-       <div style="font-size:13.5px;font-weight:800;text-align:center;color:${ok?'#059669':'#DC2626'}">
-         奶片 ${r2(chipT)} 吨 + 酸奶 ${r2(yogT)} 吨 = ${r2(total)} 吨 ${ok?'✓ 正好 9 吨':'（不是 9 吨）'}</div>
-       ${ok?`<div class="cols">
-         <div class="pf"><div class="pcol" style="height:${10500/12000*180}px;background:#94A3B8">10500</div>
-           <div class="plabel">方案一<br>4 奶片 + 5 直卖</div></div>
-         <div class="pf"><div class="pcol" style="height:180px;background:#10B981">12000</div>
-           <div class="plabel">方案二<br>1.5 奶片 + 7.5 酸奶</div></div>
-       </div><div style="text-align:center;font-weight:800;color:#059669;font-size:13.5px">方案二多赚 1500 元，选方案二</div>`:
-       `<div style="text-align:center;font-size:13px;color:var(--sub)">这样安排处理不完 9 吨，把分界调到 1.5 天奶片试试</div>`}
+         <div class="hseg" style="width:${wYog}%;background:#F59E0B">酸奶 ${r2(c.yogDays)} 天</div></div></div>
+       <div style="font-size:13.5px;font-weight:800;text-align:center">${state}</div>
      </div>`;
-     if(ok){
-       showReveal('1','奶片 1.5 吨 + 酸奶 7.5 吨 = 9 吨，时间 1.5+2.5 = 4 天','先满足 9 吨、4 天这两个硬条件，方案才成立。');
-       showReveal('2','方案二 12000 − 方案一 10500 = 1500','两本账都算清，方案二利润更高，选方案二。');
-       markDone();
-     }else{resetReveals();}
    }
-   rng.oninput=()=>{t=+rng.value;render();};
+   function thinkCap(){
+     const c=calc();
+     const tb=thinkBox('现在这个安排，产能和 9 吨比怎么样？',[
+       {label:'正好处理完',correct:c.ok,hint:'看上面绿/红/橙色提示。'},
+       {label:'加工不完，还差',correct:c.proc<D.total,hint:'处理量比 9 吨小还是大？'},
+       {label:'产能超过，用不完',correct:c.proc>D.total,hint:'处理量超过鲜奶量了吗？'}
+     ]);
+     tb.onPass=()=>{
+       if(c.ok){
+         showReveal('1',`奶片 ${r2(c.chipT)} 吨 + 酸奶 ${r2(c.yogT)} 吨 = ${D.total}，时间 ${r2(t)}+${r2(c.yogDays)}=4`,
+           '先满足吨数和4天这两个硬条件，方案才成立。');
+         const b=el('button','btn go');b.type='button';b.textContent='我来算两笔利润';
+         b.onclick=()=>askP1();setSlot(b);cleanups.push(()=>b.onclick=null);
+       }else{
+         const b=el('button','btn go');b.type='button';b.textContent='调分界，再试';
+         b.onclick=prepMove;setSlot(b);cleanups.push(()=>b.onclick=null);
+       }
+     };
+     setSlot(tb.root);cleanups.push(tb.destroy);
+   }
+   function prepMove(){
+     const b=el('button','btn go');b.type='button';b.textContent='确认当前分界';
+     b.onclick=()=>thinkCap();setSlot(b);cleanups.push(()=>b.onclick=null);
+   }
+   function p1Profit(){
+     // 4 吨奶片，其余直卖
+     return 4*2000+(D.total-4)*500;
+   }
+   function p2Profit(){
+     const c=calc();
+     return c.chipT*2000+c.yogT*1200;
+   }
+   function askP1(){
+     const ar=answerRow('方案一利润是多少？（4 吨奶片，其余直卖）',(val,fb)=>{
+       if(near(numOf(val),D.p1)){askP2();}
+       else fb.innerHTML='<span style="color:var(--red);font-weight:800">不对，奶片2000/吨、直卖500/吨，再加一次。</span>';
+     });
+     setSlot(ar.root);cleanups.push(ar.destroy);
+   }
+   function askP2(){
+     const ar=answerRow('方案二利润是多少？（奶片2000、酸奶1200）',(val,fb)=>{
+       if(near(numOf(val),D.p2)){compare();}
+       else fb.innerHTML='<span style="color:var(--red);font-weight:800">不对，按各自吨数乘利润再相加。</span>';
+     });
+     setSlot(ar.root);cleanups.push(ar.destroy);
+   }
+   function compare(){
+     const tb=thinkBox(`${D.p1} 和 ${D.p2}，选哪个方案？`,[
+       {label:`方案二，多赚 ${D.p2-D.p1}`,correct:true},
+       {label:'方案一',hint:'比一比两个利润数字谁大。'},
+       {label:'一样多',hint:'两个数相差多少？'}
+     ]);
+     tb.onPass=()=>{
+       showReveal('2',`方案二 ${D.p2} − 方案一 ${D.p1} = ${D.p2-D.p1}`,
+         '代回：两笔利润都按吨数和单位利润复算，方案二更高。');
+       markDone();
+       const b=el('button','btn go');b.type='button';b.textContent='再玩一次';
+       b.onclick=()=>{resetReveals();t=D.start;rng.value=t;draw();prepMove();};
+       setSlot(b);cleanups.push(()=>b.onclick=null);
+     };
+     setSlot(tb.root);cleanups.push(tb.destroy);
+   }
+   rng.oninput=()=>{t=+rng.value;resetReveals();draw();prepMove();};
    const rw=el('div','range-wrap');rw.append(cap,rng);
-   wrap.append(rw,fig);stage.appendChild(wrap);render();
-   return{destroy(){rng.oninput=null;}};
+   wrap.append(rw,fig,slot);stage.appendChild(wrap);draw();prepMove();
+   return{destroy(){cleanups.forEach(f=>{try{f();}catch{}});rng.oninput=null;}};
  }
 }
 };
