@@ -134,6 +134,21 @@ button{font-family:inherit}
 .eq-input:focus{border-color:var(--blue)}
 .input-fb{font-size:13px;font-weight:700;min-height:20px}
 .answer-row{display:flex;flex-direction:column;gap:10px;width:100%;align-items:stretch}
+/* 单位检查卡片 */
+.unit-card{border:2px solid #FECACA;border-radius:14px;background:#FFF7F7;padding:14px 16px;margin-top:4px}
+.unit-title{font-size:12.5px;font-weight:800;color:#B91C1C;margin-bottom:10px}
+.unit-eq{font-size:15px;font-weight:800;line-height:2.1;word-break:break-word;color:var(--ink)}
+.ut{display:inline-block;font-size:11px;font-weight:800;border-radius:7px;padding:1px 7px;margin:0 2px;white-space:nowrap}
+.ut-L{background:#DBEAFE;color:#1D4ED8}
+.ut-T{background:#FEF3C7;color:#B45309}
+.ut-LT{background:#EDE9FE;color:#6D28D9}
+.ut-M{background:#D1FAE5;color:#047857}
+.ut-unk{background:#F1F5F9;color:#64748B}
+.ut-res{border:1.5px solid currentColor;margin-left:6px}
+.clash-op{color:#fff;background:var(--red);border-radius:7px;padding:1px 9px;font-weight:900}
+.unit-note{font-size:13.5px;font-weight:800;color:var(--red);margin-top:10px}
+.unit-hint{font-size:13px;font-weight:700;color:#3730A3;background:#EEF2FF;border-radius:10px;padding:9px 12px;margin-top:8px;line-height:1.6}
+.unit-fix{margin-top:12px;background:#fff;border-color:var(--red);color:var(--red);min-height:42px;padding:9px 18px}
 /* 滑块 */
 input[type=range]{width:100%;-webkit-appearance:none;height:10px;border-radius:999px;background:var(--line);outline:none}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:30px;height:30px;border-radius:50%;
@@ -292,7 +307,7 @@ function answerRow(placeholder,onSubmit){
 }
 /* 一元一次方程判定：唯一根、线性、全角兼容 */
 function parseLinear(expr,root){
-  const e=toHalfWidth(expr);
+  const e=toHalfWidth(expr).replace(/[tT]/g,'x');
   if(!e.includes('='))return{err:'要有等号，写成左右两边相等'};
   const parts=e.split('=');
   if(parts.length!==2)return{err:'只能有一个等号'};
@@ -311,6 +326,194 @@ function parseLinear(expr,root){
   const s1=da/(a-root),s2=(db-da)/(bx-a);
   if(!near(s1,s2))return{err:'这是高次方程，有多个根；题目要一元一次'};
   return{ok:true};
+}
+
+/* =========================================================
+   单位检查：先看每一项是不是同一种东西，再谈算得对不对
+   维度 L=长度/工作量，T=时间，M=金钱；复合如 L/T 用指数对象
+========================================================= */
+function dimObj(spec){
+  const d={L:0,T:0,M:0};
+  if(!spec||spec==='1')return d;
+  const parts=spec.split('/');
+  (parts[0]||'').split('').forEach(k=>{if(k in d)d[k]++;});
+  (parts[1]||'').split('').forEach(k=>{if(k in d)d[k]--;});
+  return d;
+}
+function sameDim(a,b){return a.L===b.L&&a.T===b.T&&a.M===b.M;}
+function mulDim(a,b){return{L:a.L+b.L,T:a.T+b.T,M:a.M+b.M};}
+function divDim(a,b){return{L:a.L-b.L,T:a.T-b.T,M:a.M-b.M};}
+function numDimOf(v,model){
+  if(!model._numMap){
+    const mp=new Map();
+    Object.keys(model.numUnit||{}).forEach(k=>mp.set(Number(k),dimObj(model.numUnit[k])));
+    model._numMap=mp;
+  }
+  return model._numMap.has(v)?model._numMap.get(v):null;
+}
+/* 分词：全角先转半角，x/t 都当变量 */
+function tokenize(str){
+  const s=toHalfWidth(str).replace(/\s+/g,'');
+  const toks=[];let i=0;
+  while(i<s.length){
+    const ch=s[i];
+    if(/[0-9.]/.test(ch)){
+      let j=i;while(j<s.length&&/[0-9.]/.test(s[j]))j++;
+      toks.push({t:'n',v:parseFloat(s.slice(i,j))});i=j;
+    }else if(ch==='x'||ch==='X'||ch==='t'||ch==='T'){toks.push({t:'x'});i++;}
+    else if('+-*/()'.includes(ch)){toks.push({t:ch});i++;}
+    else i++;
+  }
+  return toks;
+}
+/* 递归下降解析，支持隐式乘法：240t、(t+12)、3(x+1) */
+function parseAst(str){
+  const toks=tokenize(str);let p=0;
+  const peek=()=>toks[p];
+  const eat=v=>{if(toks[p]&&toks[p].t===v){p++;return true;}return false;};
+  function parseFactor(){
+    const tk=peek();
+    if(!tk)throw new Error('空');
+    if(tk.t==='n'){p++;return{k:'n',v:tk.v};}
+    if(tk.t==='x'){p++;return{k:'x'};}
+    if(tk.t==='('){p++;const e=parseTop();if(!eat(')'))throw new Error('括号');return e;}
+    if(tk.t==='-'){p++;return{k:'op',op:'-',a:{k:'n',v:0},b:parseFactor()};}
+    if(tk.t==='+'){p++;return parseFactor();}
+    throw new Error('符号');
+  }
+  function startsFactor(){const tk=peek();return tk&&(tk.t==='n'||tk.t==='x'||tk.t==='('||tk.t==='-');}
+  function parseTerm(){
+    let node=parseFactor();
+    for(;;){
+      if(peek()&&peek().t==='*'){p++;node={k:'op',op:'*',a:node,b:parseFactor()};}
+      else if(peek()&&peek().t==='/'){p++;node={k:'op',op:'/',a:node,b:parseFactor()};}
+      else if(startsFactor()){node={k:'op',op:'*',a:node,b:parseFactor()};}
+      else break;
+    }
+    return node;
+  }
+  function parseTop(){
+    let node=parseTerm();
+    while(peek()&&(peek().t==='+'||peek().t==='-')){
+      const op=peek().t;p++;
+      node={k:'op',op,a:node,b:parseTerm()};
+    }
+    return node;
+  }
+  const ast=parseTop();
+  if(p!==toks.length)throw new Error('多余符号');
+  return ast;
+}
+function evalAst(n,x){
+  if(n.k==='n')return n.v;
+  if(n.k==='x')return x;
+  const a=evalAst(n.a,x),b=evalAst(n.b,x);
+  if(n.op==='+')return a+b;
+  if(n.op==='-')return a-b;
+  if(n.op==='*')return a*b;
+  return a/b;
+}
+/* 维度名和颜色 */
+function unitName(d,model){
+  if(d===null)return{name:'?',cls:'unk'};
+  const{L,T,M}=d;
+  if(L===1&&T===0&&M===0)return{name:model.Lname,cls:'L'};
+  if(L===0&&T===1&&M===0)return{name:model.Tname,cls:'T'};
+  if(L===1&&T===-1&&M===0)return{name:model.Lname+'/'+model.Tname,cls:'LT'};
+  if(L===0&&T===0&&M===1)return{name:model.Mname||'元',cls:'M'};
+  if(L===0&&T===0&&M===0)return{name:'',cls:'one'};
+  return{name:'?',cls:'unk'};
+}
+function unitTag(u){return u.name?` <span class="ut ut-${u.cls}">${u.name}</span>`:'';}
+/* 推维度，冲突记进 clashes，含未知量则该子树返回 null（不冤枉） */
+function dimOf(node,model,clashes){
+  if(node.k==='n')return numDimOf(node.v,model);
+  if(node.k==='x')return model.xDim;
+  const da=dimOf(node.a,model,clashes),db=dimOf(node.b,model,clashes);
+  if(da===null||db===null)return null;
+  if(node.op==='*')return mulDim(da,db);
+  if(node.op==='/')return divDim(da,db);
+  if(sameDim(da,db))return da;
+  clashes.push({da,db});
+  return null;
+}
+/* 带单位渲染：叶子挂单位，冲突的加减号标红 */
+function annotate(node,model){
+  if(node.k==='n')return{html:String(node.v)+unitTag(unitName(numDimOf(node.v,model),model)),dim:numDimOf(node.v,model)};
+  if(node.k==='x')return{html:(model.varName||'x')+unitTag(unitName(model.xDim,model)),dim:model.xDim};
+  const A=annotate(node.a,model),B=annotate(node.b,model);
+  let dim=null;
+  if(A.dim!==null&&B.dim!==null){
+    if(node.op==='*')dim=mulDim(A.dim,B.dim);
+    else if(node.op==='/')dim=divDim(A.dim,B.dim);
+    else if(sameDim(A.dim,B.dim))dim=A.dim;
+  }
+  const isClash=(node.op==='+'||node.op==='-')&&A.dim!==null&&B.dim!==null&&!sameDim(A.dim,B.dim);
+  const opSym=isClash?`<span class="clash-op">${node.op}</span>`:node.op;
+  let html=`${A.html} ${opSym} ${B.html}`;
+  if((node.op==='*'||node.op==='/')&&dim!==null){
+    const u=unitName(dim,model);
+    html+=` <span class="ut ut-${u.cls} ut-res">→${u.name}</span>`;
+  }
+  return{html,dim};
+}
+/* 单位检查主入口：ok 通过 / clash 冲突 / syntax 语法 / unknown 看不准不拦截 */
+function unitCheck(expr,model){
+  model.xDim=dimObj(model.xDim||'T');
+  const e=toHalfWidth(expr);
+  if(!e.includes('='))return{state:'syntax'};
+  const parts=e.split('=');
+  if(parts.length!==2)return{state:'syntax'};
+  let astL,astR;
+  try{astL=parseAst(parts[0]);astR=parseAst(parts[1]);}catch{return{state:'syntax'};}
+  const clashes=[];
+  const dL=dimOf(astL,model,clashes),dR=dimOf(astR,model,clashes);
+  const eqClash=dL!==null&&dR!==null&&!sameDim(dL,dR);
+  if(clashes.length===0&&!eqClash&&dL!==null&&dR!==null)return{state:'ok'};
+  if(clashes.length>0||eqClash){
+    return{state:'clash',hL:annotate(astL,model).html,hR:annotate(astR,model).html,clashes,eqClash};
+  }
+  return{state:'unknown'};
+}
+function clashNote(uc,model){
+  if(uc.clashes&&uc.clashes.length){
+    const c=uc.clashes[0];
+    return unitName(c.da,model).name+' 和 '+unitName(c.db,model).name+' 不是一种东西，不能直接加';
+  }
+  return '等号两边不是一种东西，对不上';
+}
+function unitCardHtml(uc,model){
+  const eq=uc.eqClash?'<span class="clash-op">=</span>':'=';
+  return `<div class="unit-card">
+    <div class="unit-title">先看单位，每一项是不是同一种东西</div>
+    <div class="unit-eq">${uc.hL} ${eq} ${uc.hR}</div>
+    <div class="unit-note">${clashNote(uc,model)}</div>
+    <div class="unit-hint">${model.hint||''}</div>
+    <button type="button" class="btn unit-fix">我回去改</button>
+  </div>`;
+}
+/* 方程输入：单位检查先过，再走数值判定；成功才 onPass */
+function equationRow(placeholder,model,onPass){
+  const root=el('div','answer-row');
+  const inp=el('input');inp.className='eq-input';inp.type='text';inp.placeholder=placeholder;
+  const fb=el('div','input-fb');
+  const b=el('button','btn go');b.type='button';b.textContent='核对我的方程';
+  b.onclick=()=>{
+    let uc;
+    try{uc=unitCheck(inp.value,model);}catch{uc={state:'unknown'};}
+    if(uc.state==='clash'){
+      fb.innerHTML=unitCardHtml(uc,model);
+      const fix=fb.querySelector('.unit-fix');
+      if(fix)fix.onclick=()=>{inp.focus();inp.select();};
+      return;
+    }
+    const r=parseLinear(inp.value,model.x);
+    if(r.ok)onPass();
+    else fb.innerHTML=`<span style="color:var(--red);font-weight:800">${r.err}</span>`;
+  };
+  inp.addEventListener('keydown',e=>{if(e.key==='Enter')b.click();});
+  root.append(inp,fb,b);
+  return{root,destroy(){b.onclick=null;}};
 }
 
 /* =========================================================
@@ -962,23 +1165,19 @@ work:{
      setSlot(tb.root);cleanups.push(tb.destroy);
    }
    function askEquation(){
-     const root=el('div','answer-row');
-     const inp=el('input');inp.className='eq-input';inp.type='text';inp.placeholder='列方程，比如 12+5x=60（全角符号也可以）';
-     const fb=el('div','input-fb');
-     const b=el('button','btn go');b.type='button';b.textContent='核对我的方程';
-     b.onclick=()=>{
-       resetReveals();
-       const r=parseLinear(inp.value,D.x);
-       if(r.ok){
-         showReveal('1','甲先做的 + 合作段 = 整项 60 格',
-           `${D.pre} + ${D.ag+D.bg}x = 60，和你写的方程等价。`);
-         const c=el('button','btn go');c.type='button';c.textContent='我解出天数了';
-         c.onclick=()=>askDays();setSlot(c);cleanups.push(()=>c.onclick=null);
-       }else fb.innerHTML=`<span style="color:var(--red);font-weight:800">${r.err}</span>`;
+     const model={
+       x:D.x,xDim:'T',varName:'x',Lname:'格',Tname:'天',
+       numUnit:{[D.pre]:'L',60:'L',[D.ag]:'L/T',[D.bg]:'L/T',[D.ag+D.bg]:'L/T'},
+       hint:'x 是天数，得先乘每天做的格数把它变成格，才能和格相加。'
      };
-     inp.addEventListener('keydown',e=>{if(e.key==='Enter')b.click();});
-     root.append(inp,fb,b);
-     setSlot(root);cleanups.push(()=>{b.onclick=null;});
+     const er=equationRow('列方程，比如 12+5x=60（全角符号也可以）',model,()=>{
+       resetReveals();
+       showReveal('1','甲先做的 + 合作段 = 整项 60 格',
+         `${D.pre} + ${D.ag+D.bg}x = 60，和你写的方程等价。`);
+       const c=el('button','btn go');c.type='button';c.textContent='我解出天数了';
+       c.onclick=()=>askDays();setSlot(c);cleanups.push(()=>c.onclick=null);
+     });
+     setSlot(er.root);cleanups.push(er.destroy);
    }
    function askDays(){
      const ar=answerRow('合作天数 x 是多少？',(val,fb)=>{
@@ -1162,11 +1361,27 @@ chase:{
        if(done){
          showReveal('1',meet?'6t + 4t = 75':'240t = 150(t+12)',
            meet?'两段路程之和等于总距离。':'并排时两人路程相等；也可写成 90t=1800。');
-         const c=el('button','btn go');c.type='button';c.textContent='我自己算时间';
-         c.onclick=()=>askX();setSlot(c);cleanups.push(()=>c.onclick=null);
+         const c=el('button','btn go');c.type='button';c.textContent='我自己列方程';
+         c.onclick=()=>askEquation();setSlot(c);cleanups.push(()=>c.onclick=null);
        }else prepMove();
      };
      setSlot(tb.root);cleanups.push(tb.destroy);
+   }
+   function askEquation(){
+     const model=meet?{
+       x:D.x,xDim:'T',varName:'t',Lname:'米',Tname:'秒',
+       numUnit:{6:'L/T',4:'L/T',75:'L'},
+       hint:'t 是秒数，要先乘每秒走的米数把它变成米，才能和米相加。'
+     }:{
+       x:D.x,xDim:'T',varName:'t',Lname:'里',Tname:'天',
+       numUnit:{150:'L/T',240:'L/T',12:'T',1800:'L'},
+       hint:'t 是天数，要先乘每天走的里数把它变成里，才能和里相加。'
+     };
+     const er=equationRow(meet?'列相遇的方程，比如 6t+4t=75':'列追及的方程，比如 240t=150(t+12)',model,()=>{
+       const c=el('button','btn go');c.type='button';c.textContent='我解出时间了';
+       c.onclick=()=>askX();setSlot(c);cleanups.push(()=>c.onclick=null);
+     });
+     setSlot(er.root);cleanups.push(er.destroy);
    }
    function askX(){
      const ar=answerRow(meet?'几秒相遇？':'良马几天追上？',(val,fb)=>{
