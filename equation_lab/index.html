@@ -315,7 +315,8 @@ function el(tag,cls,html){const e=document.createElement(tag);if(cls)e.className
 function clearNode(n){while(n.firstChild)n.removeChild(n.firstChild);}
 const near=(a,b)=>Math.abs(a-b)<=1e-9*Math.max(1,Math.abs(a),Math.abs(b));
 const r2=x=>Math.round(x*100)/100; // 仅用于显示，不参与判定
-function toHalfWidth(s){return (s||'').replace(/[！-～]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0)).replace(/　/g,' ');}
+function toHalfWidth(s){return (s||'').replace(/[！-～]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0)).replace(/　/g,' ')
+  .replace(/[−‐–—]/g,'-').replace(/[×✕✖]/g,'*').replace(/÷/g,'/');}
 function numOf(s){if(s==null)return null;const n=parseFloat(toHalfWidth(s).replace(/[^0-9.\-]/g,''));return isNaN(n)?null:n;}
 /* SVG 图标 */
 const SVG={
@@ -360,7 +361,7 @@ function answerRow(placeholder,onSubmit){
   const inp=el('input');inp.className='eq-input';inp.type='text';inp.placeholder=placeholder;
   const fb=el('div','input-fb');
   const b=el('button','btn go');b.type='button';b.textContent='核对';
-  b.onclick=()=>onSubmit(inp.value,fb);
+  b.onclick=()=>{fb.innerHTML='';onSubmit(inp.value,fb);};
   inp.addEventListener('keydown',e=>{if(e.key==='Enter')b.click();});
   root.append(inp,fb,b);
   return{root,destroy(){b.onclick=null;}};
@@ -371,6 +372,10 @@ function parseLinear(expr,root){
   if(!e.includes('='))return{err:'要有等号，写成左右两边相等'};
   const parts=e.split('=');
   if(parts.length!==2)return{err:'只能有一个等号'};
+  const bare=s=>/^x$/.test(s.replace(/\s/g,''));
+  const noX=s=>!/x/.test(s);
+  if((bare(parts[0])&&noX(parts[1]))||(bare(parts[1])&&noX(parts[0])))
+    return{err:'这是答案，不是方程。先把题目里的关系写成等式，再解'};
   const mk=s=>{
     let c=s.replace(/[^0-9x+\-*/(). ]/g,'');
     c=c.replace(/(\d)(?=[x(])/g,'$1*').replace(/\)(?=[x(\d])/g,')*').replace(/x(?=[\d(])/g,'x*');
@@ -463,7 +468,7 @@ function parseAst(str){
     if(tk.t==='+'){p++;return parseFactor();}
     throw new Error('符号');
   }
-  function startsFactor(){const tk=peek();return tk&&(tk.t==='n'||tk.t==='x'||tk.t==='('||tk.t==='-');}
+  function startsFactor(){const tk=peek();return tk&&(tk.t==='n'||tk.t==='x'||tk.t==='(');}
   function parseTerm(){
     let node=parseFactor();
     for(;;){
@@ -547,7 +552,7 @@ function annotate(node,model){
 }
 /* 单位检查主入口：ok 通过 / clash 冲突 / syntax 语法 / unknown 看不准不拦截 */
 function unitCheck(expr,model){
-  model.xUnit=unitVec(model.xUnit||'');
+  if(typeof model.xUnit==='string')model.xUnit=unitVec(model.xUnit||'');
   const e=toHalfWidth(expr);
   if(!e.includes('='))return{state:'syntax'};
   const parts=e.split('=');
@@ -967,7 +972,13 @@ parts:{
           {label:'天数 = 每天个数 ÷ 总数',hint:'总数里有几个每天的量，谁除以谁？'}],
         eqId:'worktime'},
        {q:`题目说“提前 ${D.fixed} 天完成”。计划天数和实际天数，这两个数怎么相等？`,
-        tryCheck:s=>s.includes(String(D.fixed))&&s.includes('=')&&/计划|实际|天/.test(s),
+        tryCheck:s=>{
+          if(!s.includes('='))return false;
+          if(/x/i.test(s))return parseLinear(s,D.answer).ok===true;
+          if(!s.includes(String(D.fixed)))return false;
+          if(/实际[^=]*[−\-]/.test(s))return false;
+          return /[+加]|计划[^=]*[−\-]/.test(s);
+        },
         tryHint:`“提前 ${D.fixed} 天”就是实际比计划少花 ${D.fixed} 天，把这句话写成等式。`,
         guide:`“提前 ${D.fixed} 天”，意思是实际少用了 ${D.fixed} 天。计划天数比实际天数多出来的这部分，怎么摆成等式？`,
         chooseQ:'哪一条说清了两个天数的关系？',
@@ -1200,7 +1211,7 @@ save:{
    D.factor=1+D.rate*D.years;
    return equationFlow(stage,{
      relations:[
-       {q:'一年的利息按什么算？三年的利息又怎么算？',
+       {q:`一年的利息按什么算？${D.years} 年的利息又怎么算？`,
         tryCheck:s=>/本金|x/.test(s)&&/利率/.test(s)&&/年/.test(s),tryHint:'本金、年利率、年数三样乘起来。',
         guide:BASIC_EQ.interest.guide,chooseQ:'利息怎么求？',
         choices:[
@@ -1227,7 +1238,7 @@ save:{
         direct:{cat:'金钱',name:`到期本利和是 ${D.goal} 元`,formula:`本金 + 利息 = ${D.goal}`}}
      ],
      steps:[
-       {label:`三年的利息怎么用 x 写？（年利率 ${D.rate*100}%，单利）`,
+       {label:`${D.years} 年的利息怎么用 x 写？（年利率 ${Math.round(D.rate*1000)/10}%，单利）`,
         expectExpr:`x*${D.rate}*${D.years}`,hint:'本金乘年利率，再乘年数。',
         meaning:`利息 = x × ${D.rate} × ${D.years}`},
        {label:'本利和怎么写？（本金加利息）',
@@ -1240,7 +1251,7 @@ save:{
      solve:{placeholder:'方程解出来，本金是多少？',expect:D.P,
        hint:`x = ${D.goal} ÷ ${D.factor}。`},
      onSolved(h){
-       showReveal('2',`x = ${D.P}，${r2(D.factor)}×${D.P} = ${D.goal}`,
+       showReveal('2',`x = ${D.P}，${Math.round(D.factor*1000)/1000}×${D.P} = ${D.goal}`,
          `代回：本金 ${D.P}，${D.years} 年利息 ${D.goal-D.P}，合计 ${D.goal}。`);
        markDone();
        const b=el('button','btn go');b.type='button';b.textContent='再做一次';
@@ -1383,8 +1394,8 @@ cart:{
 },
 chase:{
  name:'良马追驽马',
- stem:'<b>驽马先出发 12 天，每天走 150 里</b>；<b>良马每天走 240 里</b>，随后出发去追。推动时间尺，看它们什么时候并排。',
- drill:{stem:'两人从一条<b>长 75 米的道路两端同时相向出发</b>，一个每秒走 6 米、另一个每秒走 4 米。推动时间尺，看他们几秒相遇。'},
+ stem:'<b>驽马先出发 12 天，每天走 150 里</b>；<b>良马每天走 240 里</b>，随后出发去追。先想两匹马各跑了多久，再比它们什么时候并排。',
+ drill:{stem:'两人从一条<b>长 75 米的道路两端同时相向出发</b>，一个每秒走 6 米、另一个每秒走 4 米。先想两人各跑了几秒，再算他们几秒相遇。'},
  build(stage,variant){
    const meet=variant==='drill';
    const cfg=meet?{
@@ -1481,8 +1492,8 @@ chase:{
 },
 match:{
  name:'车间配套最多几套',
- stem:'一个成品要 <b>4 个甲零件、3 个乙零件</b>配成一套。甲组每人每天做 6 个甲，乙组每人每天做 8 个乙，<b>两组共 50 人</b>。调工人换组，看怎么安排做最多套。',
- drill:{stem:'一个成品要 <b>3 个甲零件、2 个乙零件</b>配成一套。甲组每人每天做 5 个甲，乙组每人每天做 4 个乙，<b>两组共 22 人</b>。调工人换组，看怎么安排做最多套。'},
+ stem:'一个成品要 <b>4 个甲零件、3 个乙零件</b>配成一套。甲组每人每天做 6 个甲，乙组每人每天做 8 个乙，<b>两组共 50 人</b>。先想怎么分工，能配成的整套最多。',
+ drill:{stem:'一个成品要 <b>3 个甲零件、2 个乙零件</b>配成一套。甲组每人每天做 5 个甲，乙组每人每天做 4 个乙，<b>两组共 22 人</b>。先想怎么分工，能配成的整套最多。'},
  build(stage,variant){
    const D=variant==='drill'
      ?{needA:3,needB:2,rateA:5,rateB:4,total:22,ja:12,best:20}
@@ -1505,15 +1516,15 @@ match:{
           {label:'乙能配套数 = 乙零件 × 每套需要',hint:'用除。'},
           {label:'乙能配套数 = 每套需要 ÷ 乙零件',hint:'谁除以谁？'}],
         eqId:'sets'},
-       {q:'要做最多套、又不浪费零件，甲、乙能配的套数得是什么关系？',
-        tryCheck:s=>/相等|=|一样/.test(s),tryHint:'少的那边会卡住整套数，多的零件用不上。',
-        guide:'一边能配的套数少，整套数就被少的那边卡住，多出来的零件用不上。怎样才不浪费？',
+       {q:'想做到最多、又不浪费，两边能配的套数怎么对上？对不上时，整套数被少的那边卡住。',
+        tryCheck:s=>/相等|=|一样|对上/.test(s),tryHint:'少的那边会卡住整套数，多的零件用不上。',
+        guide:'一边能配的套数少，整套数就被少的那边卡住，多出来的零件用不上。想做到最多又不浪费，两边正好对上是什么关系？',
         chooseQ:'最多套时两边什么关系？',
         choices:[
           {label:'甲能配套数 = 乙能配套数',correct:true},
           {label:'甲能配套数 + 乙能配套数 = 最多',hint:'不是相加。'},
           {label:'甲能配套数 − 乙能配套数 = 最多',hint:'两边要相等。'}],
-        direct:{cat:'分配',name:'最优时两边套数相等',formula:'甲能配套数 = 乙能配套数'}}
+        direct:{cat:'分配',name:'最多且不浪费：两边套数正好对上',formula:'甲能配套数 = 乙能配套数'}}
      ],
      steps:[
        {label:'甲组一共做多少个甲零件？（x 是甲组人数）',
