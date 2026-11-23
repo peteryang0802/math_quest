@@ -63,6 +63,7 @@ button{font-family:inherit}
 .tile .st{font-size:11px;font-weight:800;display:flex;gap:5px}
 .tile .st i{font-style:normal;color:var(--sub)}
 .tile .st i.on{color:var(--green)}
+.tile .st i.on.hint{color:var(--orange)}
 /* 题卡左右布局 */
 .card-shell{display:grid;grid-template-columns:1fr;max-width:1080px;margin:0 auto}
 .card-rail{display:none}
@@ -163,6 +164,10 @@ button{font-family:inherit}
 .step-meaning{background:#ECFDF5;border-left:4px solid var(--green);border-radius:9px;padding:10px 13px;
   font-size:13.5px;font-weight:700;color:#065F46;margin:10px 0;line-height:1.7}
 .step-bad{color:var(--red);font-weight:800}
+.my-eq-bar{background:#F5F3FF;border:1px solid #DDD6FE;border-left:4px solid var(--purple);border-radius:9px;
+  padding:10px 13px;margin-bottom:12px;display:flex;flex-direction:column;gap:5px}
+.meb-label{font-size:12px;font-weight:900;color:var(--purple)}
+.meb-formula{font-size:16px;font-weight:900;color:#4C1D95;word-break:break-all}
 .discover-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
 .guide-box{background:#FFFBEB;border:1px solid #FDE68A;border-left:4px solid #F59E0B;border-radius:9px;
   padding:12px 14px;margin-bottom:10px;font-size:15px;font-weight:700;color:#92400E;line-height:1.75}
@@ -221,6 +226,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:30px;heigh
 .rail-item .rs{font-size:11px;font-weight:800;display:flex;gap:4px}
 .rail-item .rs i{font-style:normal;color:#CBD5E1}
 .rail-item .rs i.on{color:var(--green)}
+.rail-item .rs i.on.hint{color:var(--orange)}
 .rail-back{width:100%;margin-top:10px}
 @media (min-width:980px){
   .card-shell{grid-template-columns:264px 1fr;gap:24px;padding:0 24px}
@@ -340,14 +346,14 @@ function thinkBox(question,options){
   const q=el('div','think-q',question);
   const row=el('div','think-row');
   const fb=el('div','think-fb');
-  let answered=false;const api={root,onPass:null};
+  let answered=false;const api={root,onPass:null,onError:null};
   options.forEach(o=>{
     const b=el('button','btn think-opt');b.type='button';b.textContent=o.label;
     b.onclick=()=>{
       if(answered)return;
       if(o.correct){answered=true;fb.innerHTML='<span class="think-ok">对，看下一步</span>';
         row.querySelectorAll('button').forEach(x=>x.disabled=true);if(api.onPass)api.onPass();}
-      else fb.innerHTML='<span class="think-bad">再想想。'+(o.hint||'')+'</span>';
+      else {fb.innerHTML='<span class="think-bad">再想想。'+(o.hint||'')+'</span>';if(api.onError)api.onError();}
     };
     row.appendChild(b);
   });
@@ -600,7 +606,7 @@ function equationRow(placeholder,model,onPass){
       return;
     }
     const r=parseLinear(inp.value,model.x);
-    if(r.ok)onPass();
+    if(r.ok)onPass(inp.value);
     else fb.innerHTML=`<span style="color:var(--red);font-weight:800">${r.err}</span>`;
   };
   inp.addEventListener('keydown',e=>{if(e.key==='Enter')b.click();});
@@ -658,53 +664,52 @@ function directCard(d){
 function discoverRelation(cfg,onPass){
   const root=el('div','discover');root.style.width='100%';
   const cleanups=[];
-  function levelTry(){
-    clearNode(root);
-    const q=el('div','think-q',cfg.q);
-    const inp=el('input');inp.className='eq-input';inp.type='text';
-    inp.placeholder='先自己想，写下来；没思路也可以直接要提示';
-    const fb=el('div','input-fb');
-    const row=el('div','discover-row');
-    const ok=el('button','btn go');ok.type='button';ok.textContent='我想出来了';
-    const need=el('button','btn');need.type='button';need.textContent='没思路，给我点提示';
-    ok.onclick=()=>{
-      if(!cfg.tryCheck||cfg.tryCheck(inp.value))onPass();
-      else fb.innerHTML=`<span class="step-bad">${cfg.tryHint||'再想想，或要个提示。'}</span>`;
-    };
-    need.onclick=()=>levelGuide();
-    row.append(ok,need);root.append(q,inp,fb,row);
+  let usedHint=false,level=0; // 0 自己想 / 1 看引导 / 2 选择
+  const q=el('div','think-q',cfg.q);
+  const guideBox=el('div','guide-box');guideBox.style.display='none';
+  const inp=el('input');inp.className='eq-input';inp.type='text';
+  inp.placeholder='先自己想，写下来；没思路也可以直接要提示';
+  const fb=el('div','input-fb');
+  const chooseSlot=el('div');
+  const row=el('div','discover-row');
+  const ok=el('button','btn go');ok.type='button';ok.textContent='我想出来了';
+  const need=el('button','btn');need.type='button';need.textContent='没思路，给我点提示';
+  function tryPass(){
+    if(!cfg.tryCheck||cfg.tryCheck(inp.value))onPass();
+    else fb.innerHTML=`<span class="step-bad">${cfg.tryHint||'再想想，或要个提示。'}</span>`;
   }
-  function levelGuide(){
-    clearNode(root);
-    const g=el('div','guide-box');g.innerHTML=cfg.guide;
-    const inp=el('input');inp.className='eq-input';inp.type='text';inp.placeholder='照着提示再试一次';
-    const fb=el('div','input-fb');
-    const row=el('div','discover-row');
-    const again=el('button','btn go');again.type='button';again.textContent='我想出来了';
-    const choose=el('button','btn');choose.type='button';choose.textContent='还是不会，让我选';
-    again.onclick=()=>{if(!cfg.tryCheck||cfg.tryCheck(inp.value))onPass();
-      else fb.innerHTML=`<span class="step-bad">${cfg.tryHint||'再想想，或直接看选项。'}</span>`;};
-    choose.onclick=()=>levelChoose();
-    row.append(again,choose);root.append(g,inp,fb,row);
-  }
-  function levelChoose(){
-    clearNode(root);
-    const tb=thinkBox(cfg.chooseQ||'从下面选一条对的关系',cfg.choices);
-    tb.onPass=onPass;
-    root.appendChild(tb.root);cleanups.push(tb.destroy);
-  }
-  levelTry();
-  return{root,destroy(){cleanups.forEach(f=>{try{f();}catch{}});}};
+  ok.onclick=tryPass;
+  need.onclick=()=>{
+    usedHint=true;
+    if(level===0){
+      level=1;
+      guideBox.innerHTML=cfg.guide;guideBox.style.display='block';
+      need.textContent='还是不会，让我选';
+      inp.placeholder='照着提示再试一次';
+    }else{
+      level=2;
+      guideBox.style.display='none';
+      inp.style.display='none';ok.style.display='none';need.style.display='none';
+      const tb=thinkBox(cfg.chooseQ||'从下面选一条对的关系',cfg.choices);
+      tb.onPass=onPass;
+      chooseSlot.appendChild(tb.root);cleanups.push(tb.destroy);
+    }
+  };
+  row.append(ok,need);
+  root.append(q,guideBox,inp,fb,chooseSlot,row);
+  return{root,usedHint:()=>usedHint,destroy(){cleanups.forEach(f=>{try{f();}catch{}});}};
 }
 function equationFlow(host,cfg){
   const mount=el('div');mount.style.width='100%';host.appendChild(mount);
   const cleanups=[];
+  let hintUsed=false;
   function set(node){clearNode(mount);if(node)mount.appendChild(node);}
   function bundle(...nodes){const w=el('div');w.style.width='100%';nodes.forEach(n=>w.appendChild(n));return w;}
   function stageRelations(k){
     if(k>=cfg.relations.length){stageSteps(0);return;}
     const r=cfg.relations[k];
     const disc=discoverRelation(r,()=>{
+      if(disc.usedHint())hintUsed=true;
       const wrap=el('div');wrap.style.width='100%';
       wrap.innerHTML=r.eqId?eqCard(r.eqId):directCard(r.direct);
       const b=el('button','btn go');b.type='button';
@@ -734,20 +739,25 @@ function equationFlow(host,cfg){
   }
   function stageWriteEq(){
     cfg.eq.model.x=cfg.solve.expect; // 数值根：parseLinear 用它验证方程在答案处成立
-    const er=equationRow(cfg.eq.placeholder,cfg.eq.model,()=>stageSolve());
+    const er=equationRow(cfg.eq.placeholder,cfg.eq.model,eqText=>stageSolve(eqText));
     set(er.root);cleanups.push(er.destroy);
   }
-  function stageSolve(){
+  function stageSolve(eqText){
+    const myEq=el('div','my-eq-bar');
+    const lab=el('span','meb-label');lab.textContent='我的方程';
+    const f=el('span','meb-formula');f.textContent=eqText;
+    myEq.append(lab,f);
     const ar=answerRow(cfg.solve.placeholder,(val,fb)=>{
       if(near(numOf(val),cfg.solve.expect))cfg.onSolved(helpers);
       else fb.innerHTML=`<span class="step-bad">${cfg.solve.hint||'回到方程再解。'}</span>`;
     });
-    set(ar.root);cleanups.push(ar.destroy);
+    set(bundle(myEq,ar.root));cleanups.push(ar.destroy);
   }
   const helpers={
     set,el,
+    hintUsed:()=>hintUsed,
     addCleanup(f){cleanups.push(f);},
-    restart(){resetReveals();stageRelations(0);}
+    restart(){resetReveals();hintUsed=false;stageRelations(0);}
   };
   stageRelations(0);
   return{destroy(){cleanups.forEach(f=>{try{f();}catch{}});clearNode(mount);}};
@@ -769,10 +779,12 @@ const THEMES=[
   cards:['milk']}
 ];
 const ZONE_OF={};THEMES.forEach(t=>t.cards.forEach(p=>ZONE_OF[p]=t.zone));
-const DONE_KEY='equation-lab-done-v2',DRILL_KEY='equation-lab-drill-v2';
+const DONE_KEY='equation-lab-done-v2',DRILL_KEY='equation-lab-drill-v2',
+  INDEP_KEY='equation-lab-indep-v2',DRILL_INDEP_KEY='equation-lab-drill-indep-v2';
 function loadSet(k){try{return new Set(JSON.parse(localStorage.getItem(k))||[]);}catch{return new Set();}}
 function saveSet(k,s){try{localStorage.setItem(k,JSON.stringify([...s]));}catch{}}
-const doneSet=loadSet(DONE_KEY),drillSet=loadSet(DRILL_KEY);
+const doneSet=loadSet(DONE_KEY),drillSet=loadSet(DRILL_KEY),
+  indepSet=loadSet(INDEP_KEY),drillIndepSet=loadSet(DRILL_INDEP_KEY);
 let curCard=null,curVariant='main',sceneApi=null;
 
 /* 场景接口 */
@@ -792,8 +804,10 @@ function closeCard(){if(sceneApi&&sceneApi.destroy)sceneApi.destroy();sceneApi=n
 let CARDS={};
 
 /* 左侧只读进度 */
-function statusDot(pid,set){
-  return `<i class="${set.has(pid)?'on':''}">${set.has(pid)?'✓':'·'}</i>`;
+function statusDot(pid,set,iset){
+  if(!set.has(pid))return`<i class="">·</i>`;
+  if(iset&&iset.has(pid))return`<i class="on indep" title="独立做对">✓</i>`;
+  return`<i class="on hint" title="看提示后做对">~</i>`;
 }
 function renderRail(){
   const rail=$('#card-rail');clearNode(rail);
@@ -801,7 +815,7 @@ function renderRail(){
   const list=el('div','rail-list');
   THEMES.filter(t=>t.zone===ZONE_OF[curCard]).forEach(t=>t.cards.forEach(pid=>{
     const b=el('button','rail-item'+(pid===curCard?' current':''));b.type='button';
-    b.innerHTML=`<span class="rn">${CARDS[pid].name}</span><span class="rs">${statusDot(pid,doneSet)}${statusDot(pid,drillSet)}</span>`;
+    b.innerHTML=`<span class="rn">${CARDS[pid].name}</span><span class="rs">${statusDot(pid,doneSet,indepSet)}${statusDot(pid,drillSet,drillIndepSet)}</span>`;
     b.onclick=()=>{if(pid!==curCard)navigate('/card/'+pid);};
     list.appendChild(b);
   }));
@@ -825,7 +839,7 @@ function renderMap(zone){
     t.cards.forEach((pid,i)=>{
       const tile=el('button','tile');tile.type='button';
       tile.innerHTML=`<div class="no">${t.id}-${i+1}</div><div class="nm"><span>${CARDS[pid].name}</span>
-        <span class="st">${statusDot(pid,doneSet)}${statusDot(pid,drillSet)}</span></div>`;
+        <span class="st">${statusDot(pid,doneSet,indepSet)}${statusDot(pid,drillSet,drillIndepSet)}</span></div>`;
       tile.onclick=()=>navigate('/card/'+pid);
       grid.appendChild(tile);
     });
@@ -845,16 +859,21 @@ function applyHash(){
   const v=p[0]||'home';
   if(v==='home'){closeCard();show('home');}
   else if(v==='map'){const zone=p[1]||'basic';closeCard();renderMap(zone);show('map');}
-  else if(v==='card'){const pid=p[1];if(CARDS[pid])openCard(pid,curVariant==='drill'&&pid===curCard?'drill':'main');}
+  else if(v==='card'){const pid=p[1];if(CARDS[pid])openCard(pid,p[2]==='drill'?'drill':'main');}
 }
 window.addEventListener('hashchange',applyHash);
 document.querySelectorAll('.zone-card').forEach(z=>z.onclick=()=>navigate('/map/'+z.dataset.zone));
 $('#map-back').onclick=()=>navigate('/home');
 $('#card-back').onclick=()=>navigate('/map/'+ZONE_OF[curCard]);
-$('#mode-main').onclick=()=>{if(curVariant!=='main')openCard(curCard,'main');};
-$('#mode-drill').onclick=()=>{if(curVariant!=='drill')openCard(curCard,'drill');};
-function markDone(){const s=curVariant==='drill'?drillSet:doneSet;const k=curVariant==='drill'?DRILL_KEY:DONE_KEY;
-  if(!s.has(curCard)){s.add(curCard);saveSet(k,s);}}
+$('#mode-main').onclick=()=>{if(curVariant!=='main')navigate('/card/'+curCard);};
+$('#mode-drill').onclick=()=>{if(curVariant!=='drill')navigate('/card/'+curCard+'/drill');};
+function markDone(independent){
+  const drill=curVariant==='drill';
+  const s=drill?drillSet:doneSet;
+  if(!s.has(curCard)){s.add(curCard);saveSet(drill?DRILL_KEY:DONE_KEY,s);}
+  if(independent){const iset=drill?drillIndepSet:indepSet;
+    if(!iset.has(curCard)){iset.add(curCard);saveSet(drill?DRILL_INDEP_KEY:INDEP_KEY,iset);}}
+}
 
 /* 基本等式工具箱：按类别分组，随时翻看 */
 function renderToolbox(){
@@ -890,6 +909,7 @@ tree:{
    const fig=el('div');fig.style.width='100%';
    const slot=el('div');slot.style.width='100%';
    const cleanups=[];
+   let usedHint=false;
    function setSlot(node){clearNode(slot);if(node)slot.appendChild(node);}
    function goto(n){
      if(n===0){
@@ -921,6 +941,7 @@ tree:{
          {label:'不在，得另外补上',correct:true},
          {label:'桌上剩的就够填',hint:`桌上只有 ${D.extra} ${D.unit}，空槽有 ${D.lack} 个，数一下。`}
        ]);
+       tb.onError=()=>{usedHint=true;};
        tb.onPass=()=>{
          showReveal('1',`每人多 ${gap} 个所需 = ${D.extra} + ${D.lack} = ${D.extra+D.lack}（${D.unit}）`,
            `每人多 ${gap} ${D.unit}，总共要多出来的正好是 ${D.extra+D.lack} ${D.unit}；每人 ${gap} ${D.unit}，人数 = ${D.extra+D.lack}÷${gap}。`);
@@ -938,7 +959,7 @@ tree:{
          if(near(n,D.people)){
            showReveal('2',`${D.low}×${D.people}+${D.extra} = ${D.total}，${D.high}×${D.people}−${D.lack} = ${D.total}`,
              `代回题目：两种算法都得到 ${D.total} ${D.unit}，对得上。`);
-           markDone();
+           markDone(!usedHint);
            const b=el('button','btn go');b.type='button';b.textContent='再玩一次';
            b.onclick=()=>{resetReveals();goto(0);};
            setSlot(b);cleanups.push(()=>b.onclick=null);
@@ -1003,7 +1024,7 @@ parts:{
      onSolved(h){
        showReveal('2',`x = ${D.answer}（计划 ${D.answer/D.slow} 天、实际 ${D.answer/D.fast} 天）`,
          `代回：${D.answer}÷${D.slow}=${D.answer/D.slow}，${D.answer}÷${D.fast}=${D.answer/D.fast}，差正好 ${D.fixed}。`);
-       markDone();
+       markDone(!h.hintUsed());
        const b=el('button','btn go');b.type='button';b.textContent='再做一次';
        b.onclick=()=>h.restart();h.addCleanup(()=>b.onclick=null);h.set(b);
      }
@@ -1063,7 +1084,7 @@ bus:{
          correct:c.cost===D.bestCost,hint:'把各车租金加起来再比大小。'})));
        tb.onPass=()=>{
          showReveal('2',`最省 ${D.bestCost} 元`,'这个方案座位够，租金在几个方案里最低。');
-         markDone();
+         markDone(!h.hintUsed());
          const b=el('button','btn go');b.type='button';b.textContent='再做一次';
          b.onclick=()=>h.restart();h.addCleanup(()=>b.onclick=null);h.set(b);
        };
@@ -1122,7 +1143,7 @@ box:{
      onSolved(h){
        showReveal('2',`x = ${D.x}（单台 A=${D.A}、单台 B=${D.B}）`,
          `代回：单台 A ${D.A}、单台 B ${D.B}，正好差 1。`);
-       markDone();
+       markDone(!h.hintUsed());
        const b=el('button','btn go');b.type='button';b.textContent='再做一次';
        b.onclick=()=>h.restart();h.addCleanup(()=>b.onclick=null);h.set(b);
      }
@@ -1190,7 +1211,7 @@ tunnel:{
          if(near(numOf(val),D.days)){
            showReveal('2',`剩 ${remain} ÷ ${D.jia+D.b} = ${D.days} 天`,
              `代回：${D.days} 天合挖 ${D.days*(D.jia+D.b)} 米，正好是剩下的。`);
-           markDone();
+           markDone(!h.hintUsed());
            const b=el('button','btn go');b.type='button';b.textContent='再做一次';
            b.onclick=()=>h.restart();h.addCleanup(()=>b.onclick=null);h.set(b);
          }else fb.innerHTML='<span class="step-bad">剩下米数 ÷ 合挖每天米数。</span>';
@@ -1253,7 +1274,7 @@ save:{
      onSolved(h){
        showReveal('2',`x = ${D.P}，${Math.round(D.factor*1000)/1000}×${D.P} = ${D.goal}`,
          `代回：本金 ${D.P}，${D.years} 年利息 ${D.goal-D.P}，合计 ${D.goal}。`);
-       markDone();
+       markDone(!h.hintUsed());
        const b=el('button','btn go');b.type='button';b.textContent='再做一次';
        b.onclick=()=>h.restart();h.addCleanup(()=>b.onclick=null);h.set(b);
      }
@@ -1319,7 +1340,7 @@ work:{
      onSolved(h){
        showReveal('2',`x = ${D.x}，${D.pre}+${speed}×${D.x} = 60`,
          `代回：合作 ${D.x} 天完成 ${60-D.pre} 格，加甲先做的 ${D.pre}，正好 60。`);
-       markDone();
+       markDone(!h.hintUsed());
        const b=el('button','btn go');b.type='button';b.textContent='再做一次';
        b.onclick=()=>h.restart();h.addCleanup(()=>b.onclick=null);h.set(b);
      }
@@ -1385,7 +1406,7 @@ cart:{
        showReveal('2',`x = ${D.pairs}，一共 ${D.people} 人`,
          variant==='drill'?'代回：每人对应一个往返或一条单程。'
          :`代回：${D.pairs} 人往返、${D.go-D.pairs} 人只去、${D.back-D.pairs} 人只回，共 ${D.people}。`);
-       markDone();
+       markDone(!h.hintUsed());
        const b=el('button','btn go');b.type='button';b.textContent='再做一次';
        b.onclick=()=>h.restart();h.addCleanup(()=>b.onclick=null);h.set(b);
      }
@@ -1437,7 +1458,7 @@ chase:{
      onSolved(h){
        showReveal('2','x = 7.5，6×7.5+4×7.5 = 75',
          '代回：两人在同一位置，路程和是全程。');
-       markDone();
+       markDone(!h.hintUsed());
        const b=el('button','btn go');b.type='button';b.textContent='再做一次';
        b.onclick=()=>h.restart();h.addCleanup(()=>b.onclick=null);h.set(b);
      }
@@ -1482,7 +1503,7 @@ chase:{
      onSolved(h){
        showReveal('2','x = 20，240×20 = 150×32 = 4800',
          '代回：良马 20 天、驽马含先跑共 32 天，位置相同。');
-       markDone();
+       markDone(!h.hintUsed());
        const b=el('button','btn go');b.type='button';b.textContent='再做一次';
        b.onclick=()=>h.restart();h.addCleanup(()=>b.onclick=null);h.set(b);
      }
@@ -1547,7 +1568,7 @@ match:{
      onSolved(h){
        showReveal('2',`x = ${D.ja}，${D.total-D.ja} 人做乙，最多 ${D.best} 套`,
          `代回：两边产出都正好凑 ${D.best} 个完整套，余料为 0。`);
-       markDone();
+       markDone(!h.hintUsed());
        const b=el('button','btn go');b.type='button';b.textContent='再做一次';
        b.onclick=()=>h.restart();h.addCleanup(()=>b.onclick=null);h.set(b);
      }
@@ -1627,7 +1648,7 @@ milk:{
                tb.onPass=()=>{
                  showReveal('2',`方案二 ${p2} − 方案一 ${p1} = ${p2-p1}`,
                    '两笔都按吨数和单位利润复算，方案二更高。');
-                 markDone();
+                 markDone(!h.hintUsed());
                  const b=el('button','btn go');b.type='button';b.textContent='再做一次';
                  b.onclick=()=>h.restart();h.addCleanup(()=>b.onclick=null);h.set(b);
                };
