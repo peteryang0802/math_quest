@@ -239,6 +239,49 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:30px;heigh
   .pf .pcol{width:64px}
   .stage-box{padding:18px 14px}
 }
+/* ===== 牛奶时间轴（定制） ===== */
+.milk-flow{width:100%}
+.milk-act{display:flex;flex-direction:column;gap:16px;align-items:center;width:100%}
+.milk-ways{display:flex;gap:16px;width:100%;justify-content:center;flex-wrap:wrap}
+.way{flex:1;min-width:150px;max-width:220px;border:2px solid var(--line);border-radius:14px;
+  padding:14px 12px;display:flex;flex-direction:column;gap:8px;align-items:center;background:#fff}
+.way.way-sale{border-top:5px solid var(--blue)}
+.way.way-yog{border-top:5px solid var(--teal)}
+.way.way-milk{border-top:5px solid var(--purple)}
+.way-name{font-size:13.5px;font-weight:800;color:var(--ink)}
+.way-fig{font-size:26px;font-weight:900;line-height:1}
+.way-sale .way-fig{color:var(--blue)}
+.way-yog .way-fig{color:var(--teal)}
+.way-milk .way-fig{color:var(--purple)}
+.way-fig span{font-size:12px;font-weight:700;color:var(--sub);margin-left:2px}
+.way-note{font-size:12px;color:var(--sub);font-weight:700}
+.btn-row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+.milk-axis{display:flex;width:100%;max-width:680px;height:48px;border-radius:12px;overflow:hidden;
+  background:#EDF1F7;border:1px solid var(--line)}
+.seg{display:grid;place-items:center;color:#fff;font-weight:800;font-size:13px;
+  white-space:nowrap;overflow:hidden;transition:width .2s ease}
+.seg-milk{background:var(--purple)}
+.seg-yog{background:var(--teal)}
+.axis-scale{display:grid;grid-template-columns:repeat(4,1fr);width:100%;max-width:680px;gap:4px}
+.axis-scale span{font-size:11.5px;font-weight:700;color:var(--sub);text-align:center}
+.milk-pool{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;max-width:680px;padding:6px 0}
+.blk{width:26px;height:26px;border-radius:6px;display:inline-block}
+.blk-milk{background:var(--purple)}
+.blk-sale{background:var(--blue)}
+.plan-note{font-size:13.5px;color:var(--sub);font-weight:700;text-align:center;max-width:680px}
+.axis-readout{font-size:15px;font-weight:800;color:var(--ink);text-align:center}
+.axis-readout b.hit{color:var(--green)}
+.axis-readout b.miss{color:var(--orange)}
+.milk-slider{width:100%;max-width:680px;margin:0}
+.milk-compare{display:flex;gap:38px;align-items:flex-end;justify-content:center;width:100%;min-height:170px}
+.cmp{display:flex;flex-direction:column;align-items:center;gap:8px}
+.cmp-bar{width:72px;border-radius:12px 12px 6px 6px;color:#fff;font-weight:800;font-size:14px;
+  display:flex;justify-content:center;align-items:flex-start;padding-top:8px;
+  transition:height .6s cubic-bezier(.22,1,.36,1)}
+.cmp-p1{background:var(--blue)}
+.cmp-p2{background:var(--purple)}
+.cmp-label{font-size:12.5px;font-weight:800;color:var(--sub)}
+.diff-note{font-size:15px;font-weight:900;color:var(--green);text-align:center}
 </style>
 </head>
 <body>
@@ -1583,84 +1626,155 @@ milk:{
    const D=variant==='drill'
      ?{total:8,x:2,p1:10000,p2:11200}
      :{total:9,x:1.5,p1:10500,p2:12000};
-   return equationFlow(stage,{
-     relations:[
-       {q:'做奶片每天出 1 吨，做 x 天，出多少吨奶片？这个数怎么算？',
-        tryCheck:s=>exprMatch(s,'x'),tryHint:'每天产能乘天数。',
-        guide:'每天的产量乘天数，就是这段时间的总产量。',
-        chooseQ:'奶片产量怎么求？',
-        choices:[
-          {label:'奶片产量 = 每天产能 × 天数',correct:true},
-          {label:'奶片产量 = 每天产能 + 天数',hint:'是乘。'},
-          {label:'奶片产量 = 天数 ÷ 每天产能',hint:'谁乘谁？'}],
-        direct:{cat:'工程',name:'产量 = 每天产能 × 天数',formula:'总产量 = 每天产能 × 天数'}},
-       {q:'4 天里一部分做奶片、一部分做酸奶，这两个天数怎么相等？',
-        tryCheck:s=>/4/.test(s)&&/=|加/.test(s),tryHint:'奶片天数加酸奶天数，正好 4 天。',
-        guide:'奶片天数加酸奶天数，正好是 4 天。',
-        chooseQ:'时间怎么用满？',
-        choices:[
-          {label:'奶片天数 + 酸奶天数 = 4',correct:true},
-          {label:'奶片天数 − 酸奶天数 = 4',hint:'是加。'},
-          {label:'奶片天数 = 4',hint:'还有酸奶要占天数。'}],
-        direct:{cat:'工程',name:'时间用满 4 天',formula:'奶片天数 + 酸奶天数 = 4'}},
-       {q:'奶片和酸奶的产量加起来，要等于多少吨？',
-        tryCheck:s=>new RegExp(D.total).test(s),tryHint:`${D.total} 吨要全部处理完。`,
-        guide:`${D.total} 吨奶要全部处理完，两种产量加起来正好 ${D.total} 吨。`,
-        chooseQ:'吨数怎么对？',
-        choices:[
-          {label:`奶片产量 + 酸奶产量 = ${D.total}`,correct:true},
-          {label:`奶片产量 − 酸奶产量 = ${D.total}`,hint:'是加。'},
-          {label:`奶片产量 = ${D.total}`,hint:'还有酸奶。'}],
-        direct:{cat:'工程',name:`${D.total} 吨全部处理完`,formula:`奶片产量 + 酸奶产量 = ${D.total}`}}
-     ],
-     steps:[
-       {label:'奶片产量是多少？（每天 1 吨、x 天）',
-        expectExpr:'x',hint:'1 乘 x。',meaning:'奶片产量 = x 吨'},
-       {label:'酸奶天数是多少？',
-        expectExpr:'4-x',hint:'4 减奶片天数。',meaning:'酸奶天数 = 4 − x'},
-       {label:'酸奶产量是多少？（每天 3 吨）',
-        expectExpr:'3*(4-x)',hint:'3 乘酸奶天数。',meaning:'酸奶产量 = 3(4−x) 吨'},
-       {label:'两种产量加起来，左边怎么写？',
-        expectExpr:'x+3*(4-x)',hint:'奶片加酸奶。',meaning:`左边 = x + 3(4−x)，等于 ${D.total}`}
-     ],
-     eq:{placeholder:`比如 x+3(4-x)=${D.total}`,
-       model:{xUnit:'天',numUnits:{[D.total]:'吨',4:'天'},
-         palette:{吨:'L',天:'T'},varName:'x',
-         hint:'两边算的都是吨，先把奶片天数 x 求出来。'}},
-     solve:{placeholder:'方程解出来，奶片做几天？',expect:D.x,
-       hint:'去括号、合并，再移项。'},
-     onSolved(h){
-       showReveal('1',`奶片 ${D.x} 吨、酸奶 ${3*(4-D.x)} 吨，合计 ${D.total}`,
-         `时间 ${D.x}+${4-D.x}=4，吨数也正好 ${D.total}。`);
-       const p1=4*2000+(D.total-4)*500;
-       const p2=D.x*2000+3*(4-D.x)*1200;
-       const wrap=el('div');wrap.style.width='100%';
-       const ar=answerRow('先算方案一利润：4 吨奶片、其余直卖，共多少？',(val,fb)=>{
-         if(near(numOf(val),p1)){
-           const w1=el('div');w1.style.width='100%';
-           const ar2=answerRow('再算方案二利润：奶片、酸奶按吨数，共多少？',(v2,f2)=>{
-             if(near(numOf(v2),p2)){
-               const w2=el('div');w2.style.width='100%';
-               const tb=thinkBox('两笔利润，选哪个？',[
-                 {label:`方案二，多赚 ${p2-p1}`,correct:true},
-                 {label:'方案一',hint:'比两个数谁大。'},
-                 {label:'一样多',hint:'两个数差多少？'}]);
-               tb.onPass=()=>{
-                 showReveal('2',`方案二 ${p2} − 方案一 ${p1} = ${p2-p1}`,
-                   '两笔都按吨数和单位利润复算，方案二更高。');
-                 markDone(!h.hintUsed());
-                 const b=el('button','btn go');b.type='button';b.textContent='再做一次';
-                 b.onclick=()=>h.restart();h.addCleanup(()=>b.onclick=null);h.set(b);
-               };
-               w2.appendChild(tb.root);h.addCleanup(tb.destroy);h.set(w2);
-             }else f2.innerHTML='<span class="step-bad">奶片2000、酸奶1200，按吨数乘。</span>';
-           });
-           w1.appendChild(ar2.root);h.addCleanup(ar2.destroy);h.set(w1);
-         }else fb.innerHTML='<span class="step-bad">奶片2000/吨、直卖500/吨，再加。</span>';
-       });
-       wrap.appendChild(ar.root);h.addCleanup(ar.destroy);h.set(wrap);
+   const wrap=el('div','stage-inner');wrap.style.width='100%';
+   const mount=el('div','milk-flow');mount.style.width='100%';
+   const cleanups=[];
+   let usedHint=false;
+   function set(node){clearNode(mount);if(node)mount.appendChild(node);}
+   function fwdBtn(text,fn){
+     const b=el('button','btn go');b.type='button';b.textContent=text;
+     b.onclick=fn;cleanups.push(()=>b.onclick=null);return b;
+   }
+   function scaleRow(){
+     const sc=el('div','axis-scale');
+     for(let i=1;i<=4;i++)sc.appendChild(el('span',null,'第'+i+'天'));
+     return sc;
+   }
+   /* 第 0 幕：三种出路，先做个预判 */
+   function act0(){
+     const w=el('div','milk-act');
+     const ways=el('div','milk-ways');
+     ways.innerHTML=`
+       <div class="way way-sale"><div class="way-name">直卖鲜奶</div><div class="way-fig">500<span>元/吨</span></div><div class="way-note">不占加工时间</div></div>
+       <div class="way way-yog"><div class="way-name">做酸奶</div><div class="way-fig">1200<span>元/吨</span></div><div class="way-note">每天出 3 吨</div></div>
+       <div class="way way-milk"><div class="way-name">做奶片</div><div class="way-fig">2000<span>元/吨</span></div><div class="way-note">每天出 1 吨</div></div>`;
+     const q=el('div','think-q','奶片每吨赚得最多。你先猜一句：这 '+D.total+' 吨奶，全做奶片最划算吗？');
+     const row=el('div','btn-row');
+     const b1=el('button','btn');b1.type='button';b1.textContent='全做奶片最划算';
+     const b2=el('button','btn');b2.type='button';b2.textContent='不一定，得看别的';
+     b1.onclick=()=>act1();b2.onclick=()=>act1();
+     cleanups.push(()=>{b1.onclick=null;b2.onclick=null;});
+     row.append(b1,b2);w.append(ways,q,row);set(w);
+   }
+   /* 第 1 幕：方案一，排满奶片，撞产能墙 */
+   function act1(){
+     const w=el('div','milk-act');
+     const q=el('div','think-q','先试方案一：尽量多做奶片。点一下，把这 4 天都排上奶片。');
+     w.append(q,fwdBtn('这 4 天都做奶片',showPlan1));set(w);
+   }
+   function showPlan1(){
+     const w=el('div','milk-act');
+     const axis=el('div','milk-axis');
+     const seg=el('div','seg seg-milk');seg.style.width='100%';seg.textContent='奶片，4 天';
+     axis.appendChild(seg);
+     const pool=el('div','milk-pool');
+     let blocks='';
+     for(let i=0;i<4;i++)blocks+='<span class="blk blk-milk"></span>';
+     for(let i=0;i<D.total-4;i++)blocks+='<span class="blk blk-sale"></span>';
+     pool.innerHTML=blocks;
+     const note=el('div','plan-note','4 天 × 1 吨 = 4 吨奶片。加工时间用完了，剩下 '+(D.total-4)+' 吨只能直卖，每吨 500。');
+     const ar=answerRow('方案一赚多少？4 吨奶片每吨 2000，'+(D.total-4)+' 吨直卖每吨 500。',(val,fb)=>{
+       if(near(numOf(val),D.p1)){
+         const c=el('div');c.style.width='100%';
+         c.append(ar.root,fwdBtn('记下这笔，再看分几天做酸奶',act2));set(c);
+       }else fb.innerHTML='<span class="step-bad">奶片 2000 乘 4，直卖 500 乘 '+(D.total-4)+'，再加起来。</span>';
+     });
+     w.append(axis,scaleRow(),pool,note,ar.root);set(w);
+   }
+   /* 第 2 幕：方案二，先自己列方程；写不顺再分步搭 */
+   function act2(){
+     const w=el('div','milk-act');
+     const q=el('div','think-q','方案二：一部分奶片、一部分酸奶，用满 4 天、凑满 '+D.total+' 吨。先自己试试，把完整方程写出来。');
+     const ar=answerRow('先自己列方程（x 是奶片做的天数）',(val,fb)=>{
+       let r;try{r=parseLinear(val,D.x);}catch{r={};}
+       if(r&&r.ok===true){
+         const c=el('div');c.style.width='100%';
+         c.append(ar.root,fwdBtn('方程对了，用时间轴验证',showAxisVerify));set(c);
+       }else fb.innerHTML='<span class="step-bad">写不顺没关系，可以一步步搭。</span>';
+     });
+     const guide=el('button','btn');guide.type='button';guide.textContent='没思路，带我一步步搭';
+     guide.onclick=()=>{usedHint=true;showBuildStep(0);};
+     cleanups.push(()=>guide.onclick=null);
+     w.append(q,ar.root,guide);set(w);
+   }
+   const buildSteps=[
+     {label:'奶片做 x 天、每天 1 吨，奶片多少吨？',expr:'x',hint:'每天 1 吨，乘天数。'},
+     {label:'一共 4 天，奶片占 x 天，酸奶做几天？',expr:'4-x',hint:'4 减奶片天数。'},
+     {label:'酸奶每天 3 吨，酸奶多少吨？',expr:'3*(4-x)',hint:'3 乘酸奶天数。'},
+     {label:'两部分凑满 '+D.total+' 吨，等式怎么写？',eq:true,hint:'奶片加酸奶，等于总量。'}
+   ];
+   function showBuildStep(i){
+     if(i>=buildSteps.length){showSolveX();return;}
+     const st=buildSteps[i];
+     const ar=answerRow(st.label,(val,fb)=>{
+       const ok=st.eq?(parseLinear(val,D.x).ok===true):exprMatch(val,st.expr);
+       if(ok){
+         const c=el('div');c.style.width='100%';
+         c.append(ar.root,fwdBtn(i===buildSteps.length-1?'方程对了，解出 x':'下一条',
+           ()=>showBuildStep(i+1)));set(c);
+       }else fb.innerHTML='<span class="step-bad">'+st.hint+'</span>';
+     });
+     set(ar.root);
+   }
+   function showSolveX(){
+     const ar=answerRow('解这个方程，奶片做几天（x 等于多少）？',(val,fb)=>{
+       if(near(numOf(val),D.x)){
+         const c=el('div');c.style.width='100%';
+         c.append(ar.root,fwdBtn('x='+D.x+'，用时间轴验证',showAxisVerify));set(c);
+       }else fb.innerHTML='<span class="step-bad">去括号、合并，再把 x 解出来。</span>';
+     });
+     set(ar.root);
+   }
+   /* 第 3 幕：拖动时间轴，只做验证 */
+   function showAxisVerify(){
+     const w=el('div','milk-act');
+     const q=el('div','think-q','你算出 x='+D.x+'。拖下面的滑块，用轴验证：奶片 '+D.x+' 天、酸奶 '+(4-D.x)+' 天，是不是凑满 '+D.total+' 吨。');
+     const axis=el('div','milk-axis');
+     const sMilk=el('div','seg seg-milk');const sYog=el('div','seg seg-yog');
+     axis.append(sMilk,sYog);
+     const readout=el('div','axis-readout');
+     const slider=el('input');slider.type='range';slider.min=0;slider.max=4;slider.step=0.1;slider.value=0;
+     slider.className='milk-slider';
+     function render(){
+       const x=parseFloat(slider.value);
+       sMilk.style.width=(x/4*100)+'%';sYog.style.width=((4-x)/4*100)+'%';
+       sMilk.textContent=x>0.45?('奶片 '+r2(x)):'';
+       sYog.textContent=(4-x)>0.45?('酸奶 '+r2(4-x)):'';
+       const yogT=3*(4-x),sum=x+yogT,hit=near(sum,D.total);
+       readout.innerHTML='奶片 '+r2(x)+' 吨 + 酸奶 '+r2(yogT)+' 吨 = <b class="'+(hit?'hit':'miss')+'">'+r2(sum)+'</b> 吨'+(hit?' ，凑满了':'');
+       return hit;
      }
-   });
+     slider.oninput=render;cleanups.push(()=>slider.oninput=null);render();
+     const ok=fwdBtn('验证通过，算方案二的账',()=>{ if(render())act4(); });
+     w.append(q,axis,scaleRow(),readout,slider,ok);set(w);
+   }
+   /* 第 4 幕：算方案二，两笔并排，自己决策 */
+   function act4(){
+     const yogT=3*(4-D.x);
+     const ar=answerRow('方案二赚多少？奶片 '+D.x+' 吨每吨 2000，酸奶 '+r2(yogT)+' 吨每吨 1200。',(val,fb)=>{
+       if(near(numOf(val),D.p2)){
+         const cmp=el('div','milk-compare');
+         cmp.innerHTML=
+           '<div class="cmp"><div class="cmp-bar cmp-p1" style="height:'+Math.round(D.p1/D.p2*150)+'px">'+D.p1+'</div><div class="cmp-label">方案一</div></div>'+
+           '<div class="cmp"><div class="cmp-bar cmp-p2" style="height:150px">'+D.p2+'</div><div class="cmp-label">方案二</div></div>';
+         const diff=el('div','diff-note','方案二多赚 '+(D.p2-D.p1)+' 元。');
+         const tb=thinkBox('两笔账摆这了，选哪个？',[
+           {label:'方案二，多赚 '+(D.p2-D.p1),correct:true},
+           {label:'方案一',hint:'比两个数谁大。'}
+         ]);
+         tb.onError=()=>{usedHint=true;};
+         tb.onPass=()=>{
+           markDone(!usedHint);
+           const c=el('div');c.style.width='100%';
+           c.append(ar.root,cmp,diff,fwdBtn('再做一次',()=>{resetReveals();act0();}));set(c);
+         };
+         const c=el('div');c.style.width='100%';c.append(ar.root,cmp,diff,tb.root);set(c);
+       }else fb.innerHTML='<span class="step-bad">奶片 2000、酸奶 1200，按吨数乘了再加。</span>';
+     });
+     set(ar.root);
+   }
+   wrap.appendChild(mount);stage.appendChild(wrap);act0();
+   return{destroy(){cleanups.forEach(f=>{try{f();}catch{}});clearNode(mount);}};
  }
 }
 };
