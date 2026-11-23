@@ -282,6 +282,37 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:30px;heigh
 .cmp-p2{background:var(--purple)}
 .cmp-label{font-size:12.5px;font-weight:800;color:var(--sub)}
 .diff-note{font-size:15px;font-weight:900;color:var(--green);text-align:center}
+/* ===== 牛奶复盘动画（做完之后） ===== */
+.milk-recap{display:flex;flex-direction:column;gap:14px;align-items:center;width:100%}
+.recap-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:center}
+.recap-title{font-size:15px;font-weight:900;color:var(--ink)}
+.recap-dots{display:flex;gap:7px}
+.recap-dot{width:10px;height:10px;border-radius:50%;background:var(--line);transition:all .3s}
+.recap-dot.on{background:var(--purple);transform:scale(1.3)}
+.recap-dot.done{background:var(--green)}
+.recap-stage{width:100%;max-width:720px;min-height:236px;background:#fff;border:2px solid var(--line);
+  border-radius:var(--radius);padding:22px 16px;display:flex;flex-direction:column;gap:16px;
+  align-items:center;justify-content:center;overflow:hidden}
+.recap-caption{width:100%;max-width:720px;background:#312E81;color:#fff;border-radius:14px;
+  padding:13px 16px;font-size:14.5px;font-weight:700;line-height:1.55;min-height:54px}
+.recap-controls{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.rc-need{opacity:0}
+.rc-need.rc-show{animation:rcPop .45s cubic-bezier(.22,1.4,.36,1) forwards}
+@keyframes rcPop{to{opacity:1;transform:scale(1)}}
+.rc-need{transform:scale(.85)}
+.way.rc-active{box-shadow:0 0 0 4px rgba(139,92,246,.28);transform:translateY(-3px)}
+.recap-calc{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;align-items:center;font-size:18px;font-weight:900}
+.recap-calc .tk{padding:6px 11px;border-radius:10px;color:#fff}
+.tk-milk{background:var(--purple)}.tk-sale{background:var(--blue)}
+.tk-yog{background:var(--teal)}.tk-sum{background:var(--green)}
+.recap-eq{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;align-items:center;
+  font-size:21px;font-weight:900;color:var(--ink)}
+.recap-eq .x{color:var(--purple)}.recap-eq .y{color:var(--teal)}
+.recap-verify{font-size:16.5px;font-weight:900;color:var(--ink)}
+.recap-verify .ok{color:var(--green)}
+.recap-barwrap{display:flex;gap:34px;align-items:flex-end;justify-content:center}
+.recap-end{font-size:18px;font-weight:900;color:var(--green);text-align:center}
+.recap-muted{font-size:12.5px;color:var(--sub);font-weight:700;text-align:center}
 </style>
 </head>
 <body>
@@ -1765,13 +1796,199 @@ milk:{
          tb.onError=()=>{usedHint=true;};
          tb.onPass=()=>{
            markDone(!usedHint);
-           const c=el('div');c.style.width='100%';
-           c.append(ar.root,cmp,diff,fwdBtn('再做一次',()=>{resetReveals();act0();}));set(c);
+           const finishView=()=>{
+             const c=el('div');c.style.width='100%';
+             const again=fwdBtn('再做一次',()=>{resetReveals();act0();});
+             if(variant==='drill'){c.append(ar.root,cmp,diff,again);}
+             else{c.append(ar.root,cmp,diff,again,fwdBtn('看复盘动画',()=>startRecap(finishView)));}
+             set(c);
+           };
+           finishView();
          };
          const c=el('div');c.style.width='100%';c.append(ar.root,cmp,diff,tb.root);set(c);
        }else fb.innerHTML='<span class="step-bad">奶片 2000、酸奶 1200，按吨数乘了再加。</span>';
      });
      set(ar.root);
+   }
+   /* ===== 复盘动画：做完之后点播，配音 + 时间轴动画 ===== */
+   function startRecap(onExit){
+     const root=el('div','milk-recap');
+     const head=el('div','recap-head');
+     head.append(el('div','recap-title','复盘：这道题怎么想'));
+     const dots=el('div','recap-dots');
+     const dotEls=[];
+     for(let i=0;i<4;i++){const d=el('span','recap-dot');dots.appendChild(d);dotEls.push(d);}
+     head.appendChild(dots);
+     const stage=el('div','recap-stage');
+     const caption=el('div','recap-caption');
+     const audio=el('audio');audio.preload='auto';
+     const controls=el('div','recap-controls');
+     const playBtn=el('button','btn go');playBtn.type='button';playBtn.textContent='暂停';
+     const replayBtn=el('button','btn ghost');replayBtn.type='button';replayBtn.textContent='重新播放';
+     const exitBtn=el('button','btn ghost');exitBtn.type='button';exitBtn.textContent='退出复盘';
+     controls.append(playBtn,replayBtn,exitBtn);
+     root.append(head,stage,caption,audio,controls);
+     set(root);
+
+     function show(n){n.classList.add('rc-show');}
+
+     /* 分镜 1：三种出路依次出现，奶片最贵先高亮 */
+     function build1(){
+       const ways=el('div','milk-ways');
+       const data=[
+         ['way way-sale','直卖鲜奶','500','不占加工时间'],
+         ['way way-yog','做酸奶','1200','每天出 3 吨'],
+         ['way way-milk','做奶片','2000','每天出 1 吨']
+       ];
+       const cards=[];
+       data.forEach((d,i)=>{
+         const card=el('div',d[0]+' rc-need');
+         card.style.animationDelay=(i*0.5)+'s';
+         card.innerHTML='<div class="way-name">'+d[1]+'</div><div class="way-fig">'+d[2]+
+           '<span>元/吨</span></div><div class="way-note">'+d[3]+'</div>';
+         ways.appendChild(card);cards.push(card);
+       });
+       stage.appendChild(ways);
+       return {
+         src:'assets/n1.m4a',
+         cap:'9 吨奶、4 天。直卖 500、酸奶 1200、奶片 2000。奶片最贵，那全做奶片最划算吗？先别急。',
+         enter:cards,
+         frames:[{at:0.76,run(){cards[2].classList.add('rc-active');}}]
+       };
+     }
+     /* 分镜 2：方案一，4 天排满奶片，撞产能墙，剩余直卖 */
+     function build2(){
+       const axis=el('div','milk-axis');
+       const seg=el('div','seg seg-milk');seg.style.width='0';
+       axis.appendChild(seg);
+       const pool=el('div','milk-pool');
+       const milkBlks=[],saleBlks=[];
+       for(let i=0;i<4;i++){const b=el('span','blk blk-milk rc-need');pool.appendChild(b);milkBlks.push(b);}
+       for(let i=0;i<5;i++){const b=el('span','blk blk-sale rc-need');pool.appendChild(b);saleBlks.push(b);}
+       const calc=el('div','recap-calc rc-need');
+       calc.innerHTML='<span class="tk tk-milk">4×2000</span><span>+</span><span class="tk tk-sale">5×500</span><span>=</span><span class="tk tk-sum">10500</span>';
+       stage.append(axis,scaleRow(),pool,calc);
+       return {
+         src:'assets/n2.m4a',
+         cap:'奶片一天 1 吨，4 天最多 4 吨。全排奶片，剩下 5 吨只能直卖。4×2000 + 5×500 = 10500。',
+         enter:[],
+         frames:[
+           {at:0.10,run(){seg.style.width='100%';seg.textContent='奶片，4 天';}},
+           {at:0.30,run(){milkBlks.forEach((b,i)=>{b.style.animationDelay=(i*0.18)+'s';show(b);});}},
+           {at:0.52,run(){saleBlks.forEach((b,i)=>{b.style.animationDelay=(i*0.12)+'s';show(b);});}},
+           {at:0.72,run(){show(calc);}}
+         ]
+       };
+     }
+     /* 分镜 3：方案二，时间轴分两段，列方程解出 x */
+     function build3(){
+       const axis=el('div','milk-axis');
+       const sMilk=el('div','seg seg-milk');sMilk.style.width='0';
+       const sYog=el('div','seg seg-yog');sYog.style.width='0';
+       axis.append(sMilk,sYog);
+       const eq=el('div','recap-eq rc-need');
+       eq.innerHTML='<span class="x">x</span><span>+</span><span class="y">3(4−x)</span><span>=</span><span>9</span>';
+       const ans=el('div','recap-eq rc-need');
+       ans.innerHTML='<span class="x">x = 1.5</span>';
+       stage.append(axis,scaleRow(),eq,ans);
+       return {
+         src:'assets/n3.m4a',
+         cap:'奶片做 x 天、酸奶 4−x 天。总产量 x + 3(4−x) = 9，解出 x = 1.5。',
+         enter:[],
+         frames:[
+           {at:0.30,run(){
+             sMilk.style.width=(1.5/4*100)+'%';sMilk.textContent='奶片 1.5';
+             sYog.style.width=(2.5/4*100)+'%';sYog.textContent='酸奶 2.5';
+           }},
+           {at:0.60,run(){show(eq);}},
+           {at:0.85,run(){show(ans);}}
+         ]
+       };
+     }
+     /* 分镜 4：验证凑满、两笔账对比、决策 */
+     function build4(){
+       const verify=el('div','recap-verify rc-need');
+       verify.innerHTML='奶片 1.5 吨 + 酸奶 7.5 吨 = <span class="ok">9 吨，凑满了</span>';
+       const bars=el('div','recap-barwrap');
+       function mkCol(label,val,h,cls){
+         const col=el('div','cmp');
+         const bar=el('div','cmp-bar '+cls);bar.style.width='72px';bar.style.height='0';bar.textContent=val;
+         col.append(bar,el('div','cmp-label',label));bars.appendChild(col);return bar;
+       }
+       const b1=mkCol('方案一','10500','cmp-p1');
+       const b2=mkCol('方案二','12000','cmp-p2');
+       const calc=el('div','recap-calc rc-need');
+       calc.innerHTML='<span class="tk tk-milk">1.5×2000</span><span>+</span><span class="tk tk-yog">7.5×1200</span><span>=</span><span class="tk tk-sum">12000</span>';
+       const diff=el('div','diff-note rc-need','方案二多赚 1500，选方案二，奶片和酸奶搭配做。');
+       stage.append(verify,bars,calc,diff);
+       return {
+         src:'assets/n4.m4a',
+         cap:'验证：1.5 + 7.5 = 9 吨。方案二 1.5×2000 + 7.5×1200 = 12000，比 10500 多 1500，选方案二。',
+         enter:[],
+         frames:[
+           {at:0.16,run(){show(verify);}},
+           {at:0.40,run(){b1.style.height='131px';}},
+           {at:0.55,run(){b2.style.height='150px';}},
+           {at:0.70,run(){show(calc);}},
+           {at:0.84,run(){show(diff);}}
+         ]
+       };
+     }
+     const BUILDERS=[build1,build2,build3,build4];
+
+     let cur=0,raf=0,playing=false,seg=null,fired={};
+     function markDots(){
+       dotEls.forEach((d,i)=>{
+         d.classList.toggle('on',i===cur);
+         d.classList.toggle('done',i<cur);
+       });
+     }
+     function loadSeg(i){
+       cur=i;fired={};markDots();clearNode(stage);
+       seg=BUILDERS[i]();
+       caption.textContent=seg.cap;
+       seg.enter.forEach(show);
+       audio.src=seg.src;
+     }
+     function tick(){
+       if(!playing)return;
+       const dur=audio.duration;
+       if(dur&&isFinite(dur)){
+         const p=audio.currentTime/dur;
+         seg.frames.forEach((f,idx)=>{
+           if(!fired[idx]&&p>=f.at){fired[idx]=true;f.run();}
+         });
+       }
+       raf=requestAnimationFrame(tick);
+     }
+     function play(){
+       playing=true;playBtn.textContent='暂停';
+       const pr=audio.play();
+       if(pr&&pr.catch)pr.catch(()=>{playing=false;playBtn.textContent='播放';});
+       cancelAnimationFrame(raf);raf=requestAnimationFrame(tick);
+     }
+     function pause(){
+       playing=false;playBtn.textContent='播放';audio.pause();cancelAnimationFrame(raf);
+     }
+     function onEnded(){
+       if(cur<3){loadSeg(cur+1);play();}
+       else{
+         playing=false;cancelAnimationFrame(raf);playBtn.textContent='播放';
+         dotEls[3].classList.add('done');dotEls[3].classList.remove('on');
+       }
+     }
+     function stopAll(){
+       playing=false;cancelAnimationFrame(raf);audio.pause();
+       playBtn.onclick=replayBtn.onclick=exitBtn.onclick=null;
+       audio.removeEventListener('ended',onEnded);
+     }
+     playBtn.onclick=()=>{if(playing)pause();else play();};
+     replayBtn.onclick=()=>{audio.pause();cancelAnimationFrame(raf);loadSeg(0);play();};
+     exitBtn.onclick=()=>{stopAll();onExit();};
+     audio.addEventListener('ended',onEnded);
+     cleanups.push(stopAll);
+
+     loadSeg(0);play();
    }
    wrap.appendChild(mount);stage.appendChild(wrap);act0();
    return{destroy(){cleanups.forEach(f=>{try{f();}catch{}});clearNode(mount);}};
